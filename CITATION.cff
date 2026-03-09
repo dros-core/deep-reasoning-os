@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: "If you reference DROS in academic or research work, please cite using this metadata."
+type: software
+title: "Deep Reasoning OS: A Multi-Agent Autonomous Trading Architecture"
+abstract: >
+  Deep Reasoning OS (DROS) is a multi-agent autonomous trading system for
+  Binance USDT perpetual futures. It implements a 16-agent collaborative pipeline
+  combining ensemble ML direction prediction, Yang-Zhang volatility-based grid
+  spacing, a 7-layer deterministic safety gate, dual online learning (AWR +
+  Thompson Sampling), VPIN/OFI microstructure analysis, and a self-evolving
+  AI Evolution Lab with shadow-to-production deployment validation.
+authors:
+  - name: "DROS Core Team"
+repository-code: "https://github.com/dros-core/deep-reasoning-os"
+url: "https://github.com/dros-core/deep-reasoning-os"
+version: "11.20"
+date-released: "2026-03-10"
+license: "proprietary"
+keywords:
+  - algorithmic trading
+  - multi-agent systems
+  - grid trading
+  - market microstructure
+  - online learning
+  - reinforcement learning
+  - crypto futures
+  - autonomous systems
+  - safety-critical systems
+references:
+  - type: article
+    title: "Measuring Market Liquidity: The VPIN Flow Toxicity"
+    authors:
+      - family-names: "Easley"
+        given-names: "David"
+      - family-names: "Lopez de Prado"
+        given-names: "Marcos"
+      - family-names: "OHara"
+        given-names: "Maureen"
+    journal: "Journal of Portfolio Management"
+    year: 2012
+  - type: article
+    title: "High-frequency trading in a limit order book"
+    authors:
+      - family-names: "Avellaneda"
+        given-names: "Marco"
+      - family-names: "Stoikov"
+        given-names: "Sasha"
+    journal: "Quantitative Finance"
+    year: 2008
+  - type: article
+    title: "Drift-Independent Volatility Estimation Based on High, Low, Open, and Close Prices"
+    authors:
+      - family-names: "Yang"
+        given-names: "Dennis"
+      - family-names: "Zhang"
+        given-names: "Qiang"
+    journal: "Journal of Business"
+    year: 2000
