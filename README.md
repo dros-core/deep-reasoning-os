@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="'/Users/park/Documents/Project/Image/Gemini_Generated_Image_g63ciug63ciug63c (1).png'" alt="DROS Logo" width="150"/>
+<img width="150" height="646" alt="Gemini_Generated_Image_g63ciug63ciug63c-Photoroom" src="https://github.com/user-attachments/assets/cb520cfb-28cf-452c-8f5d-a6b38a983897" />
 
   # Deep Reasoning OS (DROS)
   
