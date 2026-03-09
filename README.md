@@ -4,7 +4,7 @@
 
 # 🧠 Deep Reasoning OS (DROS)
 
-**Self-evolving crypto futures grid trading engine powered by 16 cooperative AI agents**
+**Research-first crypto futures trading architecture powered by 16 cooperative agents, deterministic safety, and recursive learning**
 
 *Research-first architecture · Deterministic safety · Continuous self-improvement*
 
@@ -39,7 +39,7 @@ Most crypto grid bots are static. DROS operates at a different level at every la
 
 | Capability | Typical Algo Bot | **DROS** |
 | :--- | :---: | :---: |
-| **Architecture** | Single script | 16 cooperative AI agents (A0–A15) |
+| **Architecture** | Single script | 16 cooperative agents |
 | **Grid Spacing** | Fixed value | Yang-Zhang volatility · SpacingOracleSSOT |
 | **Direction** | Neutral only | Ensemble ML + Game Theory prediction |
 | **Learning** | None or batch | AWR + Thompson Sampling (real-time, online) |
@@ -95,7 +95,7 @@ Single Source of Truth (SSOT) principle: each parameter is computed by exactly o
 
 Grid spacing is computed from **Yang-Zhang volatility** (OHLC-integrated, statistically superior to ATR) through a single oracle. All 16 agents read from this oracle — no agent recalculates independently.
 
-Rebuild hysteresis and cooldown prevent thrashing. ATR-only estimation is explicitly forbidden (`INVARIANT-SPACING-04`).
+Rebuild hysteresis buffer + cooldown period prevent thrashing. ATR-only estimation is explicitly forbidden (`INVARIANT-SPACING-04`).
 
 → [Architecture details](./docs/architecture.md)
 
@@ -164,14 +164,12 @@ Stealth execution: game-theoretic order randomization prevents pattern exploitat
 
 | Component | Detail |
 | :--- | :--- |
-| **Active Agents** | 16 specialized AI agents (A0–A15) |
+| **Active Agents** | 16 specialized AI agents |
 | **Safety Layers** | 7-Layer Entry Gate · 43 invariant contracts |
 | **Deployment Pipeline** | Shadow → Canary (10%) → Production |
 | **Learning** | AWR (5-min heartbeat) + Thompson Sampling (30-min rotation) |
 | **Evolution** | AI Evolution Lab · 13 modules · MAP-Elites genome search |
 | **Platform** | Binance USDT Perpetual Futures |
-| **Hardware** | Apple Silicon M4 Pro · Metal + MLX acceleration |
-| **Codebase** | ~11,000 lines production daemon · 442 test files |
 | **Validation** | CPCV + PBO overfitting detection (academic standard) |
 | **Academic refs** | 12 peer-reviewed papers (López de Prado, Easley, Adams & MacKay, Hasani…) |
 
@@ -236,6 +234,7 @@ Market microstructure is asymmetric. Institutional capital exploits patterns tha
 DROS Research Lab shares **public-safe architecture insights, regime observations, and system design notes** with the community.
 
 > No financial advice. No alpha signals. Engineering transparency only.
+> No financial advice. No copied signals. Public-safe engineering notes only.
 
 [![Telegram](https://img.shields.io/badge/Join_DROS_Research_Lab-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/deepreasoningos)
 
@@ -255,6 +254,8 @@ For exchange partners, quant funds, and institutional investors:
 - Acquisition discussions
 
 📩 **[enterprise@deepreasoningos.com](mailto:enterprise@deepreasoningos.com)**
+
+📋 **[Request the DROS deck](mailto:enterprise@deepreasoningos.com?subject=DROS%20Deck%20Request)**
 
 *We do not use GitHub Issues for enterprise inquiries.*
 
