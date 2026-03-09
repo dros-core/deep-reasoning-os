@@ -8,7 +8,7 @@
 
 The execution layer is the operational core of DROS — responsible for converting validated CardSpecs into live positions, managing capital allocation, and maintaining grid integrity around the clock.
 
-**Core file:** `execution/daemon.py` — 10,973 lines · 156 functions
+**Core file:** `execution/daemon.py` — production daemon (~11,000 lines)
 
 ---
 
@@ -47,7 +47,7 @@ Step 5: Handle mismatches (ORPHAN registration / order cancellation)
 
 Based on the insight that Binance `PUT /fapi/v1/order` (modify) **re-queues orders**, losing priority.
 
-> Academic basis: Albers et al. 2025 — fill_prob ↑ ↔ adverse_selection ↑ (R²=0.946)  
+> Academic basis: Albers et al. 2025 — fill probability correlates positively with adverse selection risk  
 > "Well-filled" ≠ "Good fill" → nearest-K maximization is suboptimal.
 
 ### 3-Phase Architecture
@@ -61,10 +61,10 @@ Based on the insight that Binance `PUT /fapi/v1/order` (modify) **re-queues orde
 ### StaleGate — 3 States
 
 ```
-Card age ≤ 3,600s  →  GREEN   → normal entry allowed
-Card age ≤ 5,400s  →  YELLOW  → slot expansion blocked
-Card age > 5,400s  →  RED     → _fill_open_slots() immediate return
-                                → FAIL_AQER_STALE_ENTRY (P0)
+GREEN  →  Fresh card → normal entry allowed
+YELLOW →  Aging card → slot expansion blocked
+RED    →  Stale card → _fill_open_slots() immediate return
+           → FAIL_AQER_STALE_ENTRY (P0)
 ```
 
 ### StickyWindow — 4-Condition Queue Preservation
