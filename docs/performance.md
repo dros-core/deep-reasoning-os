@@ -14,7 +14,7 @@
 | **Tick processing** | asyncio event loop, non-blocking |
 | **Checkpoint write** | Atomic: write → fsync → rename |
 | **Microstructure latency** | VPIN+OFI via SharedMemory, lock-free, <0.01ms |
-| **Order jitter** | ±15% randomization + Poisson timing |
+| **Order jitter** | Game-theoretic randomization + Poisson timing |
 | **Slot management** | Dynamic allocation via AOSM v2 |
 
 ---
@@ -26,7 +26,7 @@
 | **Gates per entry attempt** | 7 (all must pass) |
 | **Gate enforcement** | Deterministic (not probabilistic) |
 | **P0 invariant violations** | Immediate system halt |
-| **Card freshness TTL** | 5,400 seconds (90 minutes) |
+| **Card freshness TTL** | Configurable per-session |
 | **Liquidation probability check** | Per-entry, real-time |
 
 ---
@@ -90,7 +90,7 @@ These are internal operational targets — not financial return targets.
 | KPI | Target |
 | :--- | :--- |
 | **Cost Gate pass rate** | ≥ 90% |
-| **Negative-ROI card rate** | 0% |
+| **Negative-ROI card rate** | 0% (target) |
 | **Live-Backtest divergence** | ≤ 10% |
 | **Card generation rate** | ≥ 80% |
 
