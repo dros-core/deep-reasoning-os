@@ -1,103 +1,227 @@
 <div align="center">
-<img width="150" height="646" alt="Gemini_Generated_Image_g63ciug63ciug63c-Photoroom" src="https://github.com/user-attachments/assets/cb520cfb-28cf-452c-8f5d-a6b38a983897" />
+
+<img width="150" height="646" alt="DROS Logo" src="https://github.com/user-attachments/assets/cb520cfb-28cf-452c-8f5d-a6b38a983897" />
 
 # 🧭 Deep Reasoning OS (DROS)
 
-**"Not a hedge fund. A precision engine."** *16-Agent Autonomous Crypto Quant OS optimized for Apple Silicon.*
+**Research-first AI trading architecture for crypto futures — deterministic safety, adaptive grid execution, and self-improving learning.**
+
+*16-Agent Autonomous Crypto Quant OS · Optimized for Apple Silicon*
 
 ![Version](https://img.shields.io/badge/Version-v11.20-00D2FF?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Binance_Futures-F0B90B?style=for-the-badge&logo=binance&logoColor=white)
 ![Hardware](https://img.shields.io/badge/Hardware-Apple_M4_Pro-999999?style=for-the-badge&logo=apple&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Public_Overview-8A2BE2?style=for-the-badge)
+
+</div>
 
 ---
 
 ## 💡 What is DROS?
 
-**Deep Reasoning OS (DROS)**는 바이낸스(Binance) USDT 선물을 위한 **16-Agent 자율 협력 트레이딩 시스템**입니다. 
+**Deep Reasoning OS (DROS)** is a multi-agent autonomous trading system for **Binance USDT perpetual futures**.
 
-단일 스크립트 기반의 단순한 봇(Bot)이 아닙니다. DROS는 데이터 수집, 방향 추론, 검증, 실행, 그리고 자가 학습까지 수행하는 **완전한 운영체제(OS) 아키텍처**입니다. 
+16 AI agents collaborate in a structured pipeline — from market data ingestion, direction reasoning, and safety validation, through to execution, monitoring, and recursive self-learning.
 
-> *"We don't outscale Wall Street. We outsee them."* > (우리는 규모로 압도하지 않습니다. 그들보다 먼저 볼 뿐입니다.)
+DROS is not a single-script trading bot.  
+It is a **layered operating architecture** for decision, execution, validation, and continuous improvement.
 
-<br>
+> *"We don't outscale Wall Street. We outsee them."*
 
-## ⚔️ Why DROS? (The Asymmetric Edge)
+---
 
-대부분의 암호화폐 매매 봇은 정적(Static)입니다. DROS는 근본적인 구조부터 다릅니다.
+## ⚔️ Why DROS? — The Asymmetric Edge
 
-| 기능 (Feature) | 일반 트레이딩 봇 | DROS v11.20 |
-| :--- | :--- | :--- |
-| **Architecture** | 단일 스크립트 / 단일 로직 | **16-Agent 협력 파이프라인** |
-| **Learning** | 학습 불가 / 수동 최적화 | **AWR + Thompson Sampling 이중 온라인 학습** |
-| **Safety** | 단순 손절 (Stop-Loss) | **7-Layer Safety + 청산 확률 동적 계산** |
-| **Microstructure** | 호가창 데이터 미사용 | **VPIN + OFI + CFR 독성(Toxicity) 감지** |
-| **Evolution** | 수동 파라미터 업데이트 | **AI Evolution Lab (자율 OODA 루프 진화)** |
-| **Deployment** | 즉시 실거래 투입 | **Shadow → Canary → Production 다중 검증** |
+Most crypto grid bots are static. DROS is different at every layer.
 
-<br>
+| Feature | Typical Grid Bot | **DROS v11.20** |
+| :--- | :---: | :---: |
+| **Architecture** | Single script | **16-Agent collaborative pipeline** |
+| **Grid Spacing** | Fixed value | **Yang-Zhang volatility · SpacingOracleSSOT** |
+| **Direction** | Neutral only | **Ensemble ML + Game Theory prediction** |
+| **Learning** | None | **AWR + Thompson Sampling dual online loop** |
+| **Safety** | Simple stop-loss | **7-Layer Safety + liquidation probability** |
+| **Microstructure** | Ignored | **VPIN + OFI + CFR toxicity detection** |
+| **Evolution** | Manual updates | **AI Evolution Lab · OODA loop · Digital Twin** |
+| **Deployment** | Direct to live | **Shadow → Canary → Production validation** |
+
+---
 
 ## ⚙️ System Flow
 
 ```mermaid
 graph LR
-    A[Market Data] --> B(Regime & Reasoning)
-    B --> C{7-Layer Entry Gate}
-    C -- Pass --> D[CardSpec Signing]
-    C -- Fail --> X[Block Entry]
-    D --> E((Execution Engine))
-    E --> F[Monitoring & Rotation]
-    F --> G[(Learning Feedback Loop)]
-    G -.-> B
-    
-    style C fill:#1a1a1a,stroke:#00D2FF,stroke-width:2px,color:#fff
-    style E fill:#1a1a1a,stroke:#8A2BE2,stroke-width:2px,color:#fff
+    A[🌐 Market Data] --> B(📊 Regime & Reasoning)
+    B --> C{🛡️ 7-Layer Entry Gate}
+    C -- Pass --> D[📋 CardSpec Signing]
+    C -- Fail --> X[🚫 Block Entry]
+    D --> E((⚡ Execution Engine))
+    E --> F[📡 Monitoring & Rotation]
+    F --> G[(🧠 Learning Feedback Loop)]
+    G -.->|Self-Evolution| B
+
+    style C fill:#0d1117,stroke:#00D2FF,stroke-width:2px,color:#00D2FF
+    style E fill:#0d1117,stroke:#8A2BE2,stroke-width:2px,color:#8A2BE2
+    style G fill:#0d1117,stroke:#3FB950,stroke-width:2px,color:#3FB950
 ```
 
-<br>
+**Execution comes only after deterministic validation. Every time.**
+
+---
 
 ## 🧠 Core Components
 
-1. **Direction Engine v5.0**: 앙상블 ML(XGBoost, LightGBM)과 Isotonic Regression 보정을 거친 정밀한 방향 예측 엔진.
-2. **SpacingOracleSSOT**: Yang-Zhang 변동성 기반의 단일진실(SSOT) 동적 격자(Grid) 간격 계산 모듈.
-3. **Entry Gate (7-Layer Safety)**: 거시 경제 센티먼트부터 미시 호가창 독성까지 점검하는 결정론적 다중 안전 장치.
-4. **Execution Engine**: 롤링 그리드 실행, 자본 가중 배분(Vampire Capital) 및 TP/SL 포지션 관리.
-5. **Learning Engine**: AWR 기반의 적응형 학습과 베이지안 밴딧(Thompson Sampling) 프리셋 선택.
-6. **Microstructure Engine**: VPIN, OFI 데이터를 통한 기관 역선택(Adverse Selection) 회피 및 게임 이론 기반 스텔스 실행.
+### 1. Direction Engine v5.0
+Ensemble ML (XGBoost · LightGBM · MLP) with Isotonic Regression calibration, Purged+Embargo CV validation, and dynamic threshold policy gates. LLM acts as a structurer — never a decision maker.
 
-<br>
+### 2. SpacingOracleSSOT
+Single source of truth for dynamic grid spacing. Yang-Zhang volatility estimation with 10% hysteresis and 30-minute cooldown. All agents reference one oracle — no duplicate calculations.
+
+### 3. Entry Gate (7-Layer Safety)
+Deterministic multi-layer validation before any order is sent. Macro sentiment veto, tail risk veto, direction uncertainty block, range extreme check, toxicity shield, liquidation probability gate, and card freshness gate.
+
+### 4. Execution Engine (v11.20)
+Rolling grid execution with TP/SL monitoring, ORPHAN position management, adaptive slot allocation (AOSM v2), and atomic checkpoint writes. 10,973-line production core.
+
+### 5. Learning Engine
+Two-layer online learning: **AWR Agent** (per-heartbeat dense reward MDP) + **Thompson Sampling Bandit** (per-rotation preset selection). Bayesian Learning Subprocess (BLS) runs in isolated subprocess for memory safety.
+
+### 6. Microstructure Engine
+VPIN + OFI toxicity fusion via SharedMemory (lock-free, <0.01ms). Avellaneda-Stoikov inventory pressure. Game-theoretic stealth execution with ±15% order jitter + Poisson timing.
+
+### 7. AI Evolution Lab v3
+13-module self-evolution system via EnhancerBus (Strangler Fig pattern). Alpha Foundry (MAP-Elites genome evolution) + OODA Loop (offline 03:00–09:00 KST) + Digital Twin (EPE/FRE/LPE parity) + Black Swan Ensemble (2/4 vote: ADWIN+CUSUM+BOCPD+Hawkes).
+
+---
 
 ## 🛡️ Safety First
 
-> **"실행(Execution)은 철저한 검증(Validation) 이후에만 이루어집니다."**
+> **"Execution comes after validation. Always."**
 
-DROS는 진입 전 아래의 조건들을 완벽히 통과해야만 실제 시장에 주문을 전송합니다.
-* `Slot Availability` (안전한 진입 슬롯 확보)
-* `Direction Confidence` (방향성 확신도 임계치 도달)
-* `Funding Constraints` (펀딩비 제약 조건 통과)
-* `Tail Risk` (극단적 꼬리 위험 회피)
-* `Microstructure Toxicity` (호가창 유독성 / 기관 덤핑 사전 차단)
-* `Liquidation Probability` (청산 확률 및 마진 안전성 검증)
+DROS checks every condition before sending a single order:
 
-<br>
+| Gate | Check |
+| :--- | :--- |
+| `Macro Sentiment` | PSI ≤ −0.5 → Long blocked |
+| `Tail Risk` | tail_risk ≥ 0.8 → All entry blocked |
+| `Direction Uncertainty` | \|p_dir − 0.5\| ≤ 0.05 → Neutral zone blocked |
+| `Range Extreme` | Price at range boundary → blocked |
+| `Toxicity Shield` | VPIN toxicity score threshold → blocked |
+| `Liquidation Probability` | liq_distance < safety threshold → blocked |
+| `Card Freshness` | card_age > 5,400s → slot fill blocked |
 
-## 📦 Public Scope (Open-Core)
+The goal is not just performance. The goal is **survivable performance**.
 
-이 깃허브 저장소는 DROS의 아키텍처와 시스템 철학을 공개하는 **퍼블릭 쇼케이스(Public Overview) 레이어**입니다.
-
-* **🟢 포함됨 (Included):** 아키텍처 개요, 시스템 다이어그램, 불변 계약(Contracts) 문서, 안전 장치 명세.
-* **🔴 제외됨 (Not Included):** 라이브 API 키, 개인 런타임 상태, ML 학습 가중치(Weights), 거래소 시크릿 및 프라이빗 배포 파일.
-
-<br>
-
-## 📡 Community & Signals
-
-DROS 엔진이 탐지하는 **실시간 블랙스완 경보**와 **데일리 알파(Alpha)**는 공식 텔레그램 연구소에서 독점 공개됩니다.
-
-[![Telegram](https://img.shields.io/badge/Join_DROS_Quant_Lab-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/여기에_선생님의_텔레그램_채널_아이디를_넣으세요)
-
-**💼 Institutional Inquiries (B2B 연동 및 투자 문의):** `선생님의_이메일@주소.com` <br>
-**🐦 Twitter (X):** `[@선생님의_트위터_아이디]`
+**Battle-tested against real liquidation events:**
+- 2026-02-02 · MERLUSDT · SHORT vs +37% LONG rally → 100% liquidation → 5-layer defense added
+- 2026-02-04 · CLO/USDT · p_dir=0.50 uncertainty → Neutral Zone ±5% gate added
 
 ---
-*Disclaimer: DROS is a quantitative research project. The signals and algorithms discussed are for informational purposes only and do not constitute financial advice.*
+
+## 🔬 AI Evolution Lab v3
+
+Strategy evolution under strict scientific discipline.
+
+```
+New Hypothesis → Research Lab (POPPER E-value)
+              → Counterfactual Lab (OPE Capped SNIPS)
+              → Digital Twin (EPE/FRE/LPE parity <5%)
+              → Shadow (min. 7 days)
+              → Canary (10% traffic, SPA p<0.01)
+              → Production
+```
+
+**Active modules (Production):** ACI Risk · EventStore (SQLite WAL) · Digital Twin · Counterfactual Lab · Black Swan Ensemble · Alpha Foundry · OODA Loop
+
+**Key invariants:** No direct deployment without shadow. No post-hoc hypotheses. Black Swan requires 2/4 ensemble vote. OODA Decide/Act is offline-only.
+
+---
+
+## 📦 Public Scope — Open-Core
+
+This repository is the **public-facing documentation layer** of DROS.
+
+**🟢 Included**
+- Architecture overview and system diagrams
+- Agent pipeline documentation
+- Safety gate specifications
+- Learning pipeline design
+- Evolution Lab architecture
+- Invariant contract references
+
+**🔴 Not Included**
+- Live API keys or exchange credentials
+- Private runtime state or checkpoint files
+- ML model weights or trained parameters
+- Production deployment configurations
+- Proprietary execution infrastructure
+- Sensitive strategy parameters
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+| :--- | :--- |
+| [Architecture](./docs/architecture.md) | Full system architecture and agent pipeline |
+| [Agents](./docs/agents.md) | 16-Agent roles, contracts, and interaction patterns |
+| [Safety](./docs/safety.md) | 7-Layer Entry Gate and invariant contracts |
+| [Learning](./docs/learning.md) | AWR + Thompson Sampling + BLS pipeline |
+| [Execution](./docs/execution.md) | v11 execution engine, AQER, AOSM |
+| [Evolution Lab](./docs/evolution-lab.md) | AI Evolution Lab v3 — 13 modules |
+
+---
+
+## 📊 Codebase (Private Repository)
+
+| Metric | Value |
+| :--- | :--- |
+| Total Python | ~1,090,000 lines |
+| Core Daemon | 10,973 lines · 156 functions |
+| Test Files | 442 |
+| Service Modules | 100 |
+| Contract Definitions | 43 |
+| Evolution Modules | 53 |
+
+---
+
+## 🛠️ Tech Stack
+
+**Runtime:** Python 3.13+ · Apple MLX (M4 Pro NPU) · SQLite WAL  
+**ML:** XGBoost · LightGBM · PyTorch · pyribs MAP-Elites · FAISS  
+**Algorithms:** Yang-Zhang Vol · Triple-Barrier · CPCV · CFR/DCFR · VPIN+OFI · AWR · BOCPD · Hawkes  
+**Infra:** Binance Futures REST+WebSocket · macOS launchd · POSIX SharedMemory · asyncio
+
+---
+
+## 📡 Community & Research
+
+DROS real-time Black Swan alerts and daily alpha signals are shared exclusively in the official research channel.
+
+[![Telegram](https://img.shields.io/badge/Join_DROS_Quant_Lab-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/your_channel)
+
+**💼 Institutional / B2B Inquiries:** `your@email.com`  
+**🐦 X / Twitter:** `@your_handle`
+
+---
+
+## 📋 Status
+
+| Item | Detail |
+| :--- | :--- |
+| Version | v11.20 |
+| Platform | Binance USDT Perpetual Futures |
+| Runtime | Apple M4 Pro · Python 3.13+ |
+| Repository | Public architecture overview |
+| Production | Live trading (private system) |
+
+---
+
+<div align="center">
+
+*DROS is a quantitative research and systems architecture project.*  
+*Nothing in this repository constitutes financial advice, investment solicitation, or a guarantee of future performance.*  
+*All signals, architecture notes, and examples are for informational and research purposes only.*
+
+</div>
