@@ -8,7 +8,7 @@
 
 > **"Execution comes after validation. Always."**
 
-DROS does not optimize for maximum trade frequency.  
+DROS does not optimize for maximum trade frequency.
 It optimizes for **survivable, consistent performance** by blocking entries that fail any safety condition.
 
 ---
@@ -29,7 +29,7 @@ Entry Request
     │     → FAIL_TAIL_RISK_VETO
     │
     ├─ Layer 3: Direction Uncertainty Block
-    │     |p_dir − 0.5| ≤ 0.05 → Neutral Zone → blocked
+    │     Direction confidence below threshold → Neutral Zone → blocked
     │     (CLO/USDT event defense — 2026-02-04)
     │
     ├─ Layer 4: Range Extreme Check
@@ -55,13 +55,13 @@ Entry Request
 
 | Gate | Condition | Action | Code |
 |------|-----------|--------|------|
-| Macro Sentiment | PSI above threshold | Block Long | `FAIL_MACRO_SENTIMENT_VETO` |
-| Tail Risk | tail_risk above threshold | Block all | `FAIL_TAIL_RISK_VETO` |
-| Direction Uncertainty | \|p_dir−0.5\| ≤ 0.05 | Block entry | — |
+| Macro Sentiment | PSI above configured threshold | Block Long | FAIL_MACRO_SENTIMENT_VETO |
+| Tail Risk | Tail risk above configured threshold | Block all | FAIL_TAIL_RISK_VETO |
+| Direction Uncertainty | Direction confidence below threshold | Block entry | — |
 | Range Extreme | Price at boundary | Block entry | — |
-| Toxicity Shield | VPIN > threshold | Block entry | — |
-| Liquidation Probability | liq_distance < safety | Block margin | `FAIL_AOSM_UNSAFE_MARGIN_RELEASE` |
-| Card Freshness | card age exceeds TTL | Block slots | `FAIL_AQER_STALE_ENTRY` |
+| Toxicity Shield | VPIN above threshold | Block entry | — |
+| Liquidation Probability | liq_distance < safety margin | Block margin | FAIL_AOSM_UNSAFE_MARGIN_RELEASE |
+| Card Freshness | Card age exceeds TTL | Block slots | FAIL_AQER_STALE_ENTRY |
 
 ---
 
@@ -94,17 +94,17 @@ Violation → FAIL_AOSM_UNSAFE_MARGIN_RELEASE (P1)
 | Actual result | +37% LONG rally |
 | Outcome | 100% liquidation |
 
-**Root causes identified:**
+Root causes identified:
 
 | ID | Root Cause | Resolution Module |
 |----|-----------|-------------------|
-| E1 | Funding rate misinterpretation | `contracts/funding_ssot.py` |
-| E2 | Lagging indicators only (MACD, RSI, ADX) | `services/adaptive_direction_engine.py` |
-| E3 | Tail Risk KPI undefined | `contracts/decision_policy_contracts.py` |
-| W4 | No real-time Kill Switch | `services/dynamic_kill_switch.py` |
-| W7 | No Tail Risk model | `services/tail_risk_model.py` |
+| E1 | Funding rate misinterpretation | contracts/funding_ssot.py |
+| E2 | Lagging indicators only (MACD, RSI, ADX) | services/adaptive_direction_engine.py |
+| E3 | Tail Risk KPI undefined | contracts/decision_policy_contracts.py |
+| W4 | No real-time Kill Switch | services/dynamic_kill_switch.py |
+| W7 | No Tail Risk model | services/tail_risk_model.py |
 
-**Defenses added:** 5-layer Entry Gate · Funding SSOT · Dynamic Kill Switch · Tail Risk Model · Microstructure signals
+Defenses added: 5-layer Entry Gate · Funding SSOT · Dynamic Kill Switch · Tail Risk Model · Microstructure signals
 
 ---
 
@@ -113,18 +113,12 @@ Violation → FAIL_AOSM_UNSAFE_MARGIN_RELEASE (P1)
 | Item | Detail |
 |------|--------|
 | Symbol | CLO/USDT |
-| p_dir_12h | **0.50** (50% — maximum uncertainty) |
 | System judgment | SHORT |
 | Actual result | +24% LONG pump |
 
-**Root cause:** Direction entered SHORT despite p_dir = 0.5 (pure coin flip).
+Root cause: Direction entered SHORT despite maximum directional uncertainty (near-50/50 probability split).
 
-**Defense added — Entry Gate Check Layer 3:**
-```python
-# Neutral Zone ±5% from 0.5
-if abs(p_dir_12h - 0.5) <= 0.05:
-    return "BLOCKED", "DIRECTION_TOO_UNCERTAIN"
-```
+Defense added — Entry Gate Layer 3: When directional model confidence falls below a configured threshold, the system automatically enters a **Neutral Zone** and blocks all new entries regardless of other signals. Specific threshold values are internal configuration.
 
 ---
 
@@ -134,40 +128,38 @@ if abs(p_dir_12h - 0.5) <= 0.05:
 
 | Code | Trigger |
 |------|---------|
-| `FAIL_UNIT_PCT` | `_pct` unit used anywhere |
-| `FAIL_CARDSPEC_MUTATION` | CardSpec modified after signing |
-| `FAIL_ORPHAN_FORCED_CLOSE` | Forced full liquidation of orphan |
-| `FAIL_NCO_SCALE_IN_ATTEMPTED` | Scale-In on NCO position |
-| `FAIL_SPACING_SSOT_MISMATCH` | SpacingOracle bypassed |
-| `FAIL_REDUCE_ONLY_BLOCKED_BY_MARGIN_BACKOFF` | Reduce-only order blocked |
-| `FAIL_LLM_DIRECT_CALL` | Direct Ollama call without broker |
-| `FAIL_IMPORT_RELOAD` | `importlib.reload()` used |
+| FAIL_UNIT_PCT | _pct unit used anywhere |
+| FAIL_CARDSPEC_MUTATION | CardSpec modified after signing |
+| FAIL_ORPHAN_FORCED_CLOSE | Forced full liquidation of orphan |
+| FAIL_NCO_SCALE_IN_ATTEMPTED | Scale-In on NCO position |
+| FAIL_SPACING_SSOT_MISMATCH | SpacingOracle bypassed |
+| FAIL_REDUCE_ONLY_BLOCKED_BY_MARGIN_BACKOFF | Reduce-only order blocked |
+| FAIL_LLM_DIRECT_CALL | Direct Ollama call without broker |
+| FAIL_IMPORT_RELOAD | importlib.reload() used |
 
 ### P1 — Learning / Execution Halt
 
 | Code | Trigger |
 |------|---------|
-| `FAIL_N_BELOW_10` | N_total < 10 |
-| `FAIL_SPACING_TOO_TIGHT` | spacing < k_floor × fees |
-| `FAIL_HASH_MISMATCH` | sha256 integrity check failed |
-| `FAIL_MACRO_SENTIMENT_VETO` | PSI above configured threshold |
-| `FAIL_TAIL_RISK_VETO` | tail_risk above configured threshold |
-| `FAIL_PBO_OVERFIT` | PBO ≥ 0.3 in backtest |
-| `FAIL_AOSM_UNSAFE_MARGIN_RELEASE` | Liquidation distance insufficient |
+| FAIL_N_BELOW_10 | N_total < 10 |
+| FAIL_SPACING_TOO_TIGHT | spacing < k_floor × fees |
+| FAIL_HASH_MISMATCH | sha256 integrity check failed |
+| FAIL_MACRO_SENTIMENT_VETO | PSI above configured threshold |
+| FAIL_TAIL_RISK_VETO | Tail risk above configured threshold |
+| FAIL_PBO_OVERFIT | PBO ≥ 0.3 in backtest |
+| FAIL_AOSM_UNSAFE_MARGIN_RELEASE | Liquidation distance insufficient |
 
 ### Warnings — Self-Correcting
 
 | Code | Trigger | Auto-action |
 |------|---------|-------------|
-| `WARN_EFH_LOW` | Fill frequency low | spacing ↓ 10% |
-| `WARN_FCR_LOW` | Fill completion low | spacing ↑ 15% |
-| `WARN_NEGATIVE_ROI` | Negative ROI card | Card rejected |
+| WARN_EFH_LOW | Fill frequency low | Spacing adjusted down |
+| WARN_FCR_LOW | Fill completion low | Spacing adjusted up |
+| WARN_NEGATIVE_ROI | Negative ROI card | Card rejected |
 
 ---
 
 ## ORPHAN Position Contracts
-
-Non-Card Orphan (NCO) positions follow strict rules:
 
 ```
 INVARIANT-ORPHAN-02: no_fills_30min → rotation exempt, SL forbidden, TP-only exit
@@ -184,9 +176,9 @@ INVARIANT-NCO-07:    drag_reversion_ratio > 5.0 → MANUAL_REVIEW
 ```
 p_dir ∈ [0, 1]  (calibrated probability)
 
-Neutral Zone:    |p_dir − 0.5| ≤ 0.05  →  entry blocked
-Abstain:         confidence < ABSTAIN_THRESHOLD  →  direction withheld
-Macro Veto:      PSI above threshold  →  Long blocked
+Neutral Zone:    Direction confidence below threshold  →  entry blocked
+Abstain:         Model confidence below abstain threshold  →  direction withheld
+Macro Veto:      PSI above configured threshold  →  Long blocked
 
 Dynamic threshold table (no hardcoded values):
   threshold = table[regime][cluster]
@@ -195,4 +187,4 @@ Dynamic threshold table (no hardcoded values):
 
 ---
 
-*→ See [Architecture](./architecture.md) · [Execution](./execution.md) · [Evolution Lab](./evolution-lab.md)*
+→ See [Architecture](./architecture.md) · [Execution](./execution.md) · [Evolution Lab](./evolution-lab.md)
