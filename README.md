@@ -2,20 +2,19 @@
 
 <img width="150" alt="DROS Logo" src="https://github.com/user-attachments/assets/cb520cfb-28cf-452c-8f5d-a6b38a983897" />
 
-# 🧭 Deep Reasoning OS (DROS)
+# 🧠 Deep Reasoning OS (DROS)
 
-**Research-first AI trading architecture for crypto futures —  
-deterministic safety, adaptive grid execution, and self-improving learning.**
+**Self-evolving crypto futures grid trading engine powered by 16 cooperative AI agents**
 
-*16-Agent Autonomous Crypto Quant OS · Optimized for Apple Silicon*
+*Research-first architecture · Deterministic safety · Continuous self-improvement*
 
 ![Version](https://img.shields.io/badge/Version-v11.20-00D2FF?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Binance_Futures-F0B90B?style=for-the-badge&logo=binance&logoColor=white)
 ![Hardware](https://img.shields.io/badge/Hardware-Apple_M4_Pro-999999?style=for-the-badge&logo=apple&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Public_Overview-8A2BE2?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Production-3FB950?style=for-the-badge)
 
-**[Docs](#-documentation) · [Roadmap](./ROADMAP.md) · [Community](#-dros-research-community) · [Enterprise](#-enterprise--partnerships)**
+**[📖 Docs](#-documentation) · [🗺️ Roadmap](./ROADMAP.md) · [📡 Community](#-dros-research-community) · [🏢 Enterprise](#-enterprise--partnerships)**
 
 </div>
 
@@ -25,153 +24,139 @@ deterministic safety, adaptive grid execution, and self-improving learning.**
 
 **Deep Reasoning OS (DROS)** is a multi-agent autonomous trading system for **Binance USDT perpetual futures**.
 
-16 AI agents collaborate in a structured pipeline — from market data ingestion, direction reasoning, and safety validation, through to execution, monitoring, and recursive self-learning.
+16 AI agents collaborate in a structured pipeline — from market data ingestion, direction reasoning, and safety validation, through to execution, monitoring, and recursive self-learning. The system continuously evolves its own strategies through an AI Evolution Lab inspired by quality-diversity optimization research.
 
 DROS is not a single-script trading bot.  
 It is a **layered operating architecture** for decision, execution, validation, and continuous improvement.
 
-> *"We don't outscale Wall Street. We outsee them."*
+> *"We don't outscale institutional capital. We outsee it — through microstructure."*
 
 ---
 
-## ⚔️ Why DROS? — The Asymmetric Edge
+## ⚔️ Why DROS?
 
-Most crypto grid bots are static. DROS is different at every layer.
+Most crypto grid bots are static. DROS operates at a different level at every layer.
 
-| Feature | Typical Grid Bot | **DROS v11.20** |
+| Capability | Typical Algo Bot | **DROS** |
 | :--- | :---: | :---: |
-| **Architecture** | Single script | **16-Agent collaborative pipeline** |
-| **Grid Spacing** | Fixed value | **Yang-Zhang volatility · SpacingOracleSSOT** |
-| **Direction** | Neutral only | **Ensemble ML + Game Theory prediction** |
-| **Learning** | None | **AWR + Thompson Sampling dual online loop** |
-| **Safety** | Simple stop-loss | **7-Layer Safety + liquidation probability** |
-| **Microstructure** | Ignored | **VPIN + OFI + CFR toxicity detection** |
-| **Evolution** | Manual updates | **AI Evolution Lab · OODA loop · Digital Twin** |
-| **Deployment** | Direct to live | **Shadow → Canary → Production validation** |
+| **Architecture** | Single script | 16 cooperative AI agents (A0–A15) |
+| **Grid Spacing** | Fixed value | Yang-Zhang volatility · SpacingOracleSSOT |
+| **Direction** | Neutral only | Ensemble ML + Game Theory prediction |
+| **Learning** | None or batch | AWR + Thompson Sampling (real-time, online) |
+| **Self-Evolution** | Manual updates | AI Evolution Lab · MAP-Elites genome search |
+| **Safety** | Simple stop-loss | 7-Layer Entry Gate · 43 invariant contracts |
+| **Microstructure** | Price/volume only | VPIN + OFI fusion · SharedMemory <1ms |
+| **Deployment** | All-or-nothing | Shadow → Canary (10%) → Production |
+| **Backtesting** | Simple lookback | CPCV + PBO overfitting detection |
+| **Transparency** | Closed | Open architecture, closed execution |
 
 ---
 
-## ⚙️ System Flow
+## ⚙️ System Architecture
 
 ```mermaid
 graph LR
-    A[🌐 Market Data] --> B(📊 Regime & Reasoning)
+    A[🌐 Market Data] --> B(📊 Regime & Direction Engine)
     B --> C{🛡️ 7-Layer Entry Gate}
     C -- Pass --> D[📋 CardSpec Signing]
     C -- Fail --> X[🚫 Block Entry]
-    D --> E((⚡ Execution Engine))
+    D --> E((⚡ Execution Engine v11))
     E --> F[📡 Monitoring & Rotation]
-    F --> G[(🧠 Learning Feedback Loop)]
+    F --> G[(🧠 AWR + Thompson Learning)]
     G -.->|Self-Evolution| B
+    G -.->|AI Evolution Lab| H[🔬 Shadow → Canary → Production]
+    H -.-> E
 
     style C fill:#0d1117,stroke:#00D2FF,stroke-width:2px,color:#00D2FF
     style E fill:#0d1117,stroke:#8A2BE2,stroke-width:2px,color:#8A2BE2
     style G fill:#0d1117,stroke:#3FB950,stroke-width:2px,color:#3FB950
+    style H fill:#0d1117,stroke:#F0B90B,stroke-width:2px,color:#F0B90B
 ```
 
 **Execution comes only after deterministic validation. Every time.**
 
 ---
 
-## 🧠 Core Components
+## 🧠 Core Pillars
 
 <details>
-<summary><strong>1. Direction Engine v5.0</strong> — Ensemble ML prediction with calibration</summary>
+<summary><strong>1. 16-Agent Cooperative Pipeline (A0–A15)</strong></summary>
 
-Ensemble ML (XGBoost · LightGBM · MLP) with Isotonic Regression calibration, Purged+Embargo CV validation, and dynamic threshold policy gates. LLM acts as a structurer — never a decision maker.
+Each agent owns exactly one responsibility — no duplicate calculations. The pipeline flows from data ingestion (A0–A2) through direction reasoning (A3–A5), safety validation (A6), grid design (A4), execution (A10–A11), monitoring (A12–A13), learning (A7–A8), and self-evolution coordination (A16).
+
+Single Source of Truth (SSOT) principle: each parameter is computed by exactly one agent. Any bypass raises a named FAIL code.
+
+→ [Full agent documentation](./docs/agents.md)
 
 </details>
 
 <details>
-<summary><strong>2. SpacingOracleSSOT</strong> — Single source of truth for grid spacing</summary>
+<summary><strong>2. SpacingOracleSSOT — Volatility-Adaptive Grid Spacing</strong></summary>
 
-Yang-Zhang volatility estimation with 10% hysteresis and 30-minute cooldown. All agents reference one oracle — no duplicate calculations. ATR-only estimation forbidden (`INVARIANT-SPACING-04`).
+Grid spacing is computed from **Yang-Zhang volatility** (OHLC-integrated, statistically superior to ATR) through a single oracle. All 16 agents read from this oracle — no agent recalculates independently.
 
-</details>
+Rebuild hysteresis and cooldown prevent thrashing. ATR-only estimation is explicitly forbidden (`INVARIANT-SPACING-04`).
 
-<details>
-<summary><strong>3. Entry Gate (7-Layer Safety)</strong> — Deterministic multi-layer validation</summary>
-
-Every order passes 7 gates before execution: Macro Sentiment veto, Tail Risk veto, Direction Uncertainty block, Range Extreme check, Toxicity Shield (VPIN), Liquidation Probability gate, and Card Freshness gate.
+→ [Architecture details](./docs/architecture.md)
 
 </details>
 
 <details>
-<summary><strong>4. Execution Engine (v11.20)</strong> — Rolling grid with atomic state management</summary>
+<summary><strong>3. 7-Layer Entry Gate — Deterministic Safety</strong></summary>
 
-Rolling grid execution with TP/SL monitoring, ORPHAN position management, adaptive slot allocation (AOSM v2), and atomic checkpoint writes. 10,973-line production core.
+Every order attempt passes 7 sequential gates. Any single failure blocks execution:
 
-</details>
+1. **Macro Sentiment Veto** — Regime-level directional block
+2. **Tail Risk Veto** — Extreme event probability check
+3. **Direction Uncertainty Block** — Neutral Zone entry prevention (CLO/USDT defense)
+4. **Range Extreme Check** — Price boundary validation
+5. **Toxicity Shield** — VPIN-based institutional adverse flow detection
+6. **Liquidation Probability Gate** — Real-time liq distance validation (AOSM v2)
+7. **Card Freshness Gate** — Stale strategy rejection (AQER)
 
-<details>
-<summary><strong>5. Learning Engine</strong> — Dual online learning loop</summary>
+The 7-layer design emerged from two real liquidation events (Feb 2026). Every layer has a failure behind it.
 
-Two-layer online learning: **AWR Agent** (per-heartbeat dense reward MDP) + **Thompson Sampling Bandit** (per-rotation preset selection). Bayesian Learning Subprocess (BLS) runs in isolated subprocess for memory safety.
-
-</details>
-
-<details>
-<summary><strong>6. Microstructure Engine</strong> — Sub-millisecond toxicity detection</summary>
-
-VPIN + OFI toxicity fusion via SharedMemory (lock-free, <0.01ms). Avellaneda-Stoikov inventory pressure. Game-theoretic stealth execution with ±15% order jitter + Poisson timing.
+→ [Full safety documentation](./docs/safety.md)
 
 </details>
 
 <details>
-<summary><strong>7. AI Evolution Lab v3</strong> — 13-module self-evolution system</summary>
+<summary><strong>4. Dual Online Learning — AWR + Thompson Sampling</strong></summary>
 
-EnhancerBus (Strangler Fig pattern): Alpha Foundry (MAP-Elites genome evolution) + OODA Loop (offline 03:00–09:00 KST) + Digital Twin (EPE/FRE/LPE parity) + Black Swan Ensemble (2/4 vote: ADWIN+CUSUM+BOCPD+Hawkes).
+Two learning layers run in parallel, solving different problems:
+
+- **Layer 1 — Thompson Sampling Bandit**: Selects the best preset configuration per symbol per rotation (~30 min). Bayesian Beta posterior, net ROI success metric (fees + funding deducted).
+- **Layer 2 — AWR Agent (MDP)**: Continuous grid parameter adaptation via Advantage-Weighted Regression. Dense heartbeat reward every 5 minutes. Replay buffer of 10,000 samples, oldest auto-evicted.
+
+BLS (Bayesian Learning Subprocess) runs isolated every 6 hours — OS fully reclaims memory on exit.
+
+→ [Learning pipeline documentation](./docs/learning.md)
 
 </details>
-
----
-
-## 🛡️ Safety First
-
-> **"Execution comes after validation. Always."**
-
-DROS checks every condition before sending a single order:
-
-| Gate | Check |
-| :--- | :--- |
-| `Macro Sentiment` | PSI ≤ −0.5 → Long blocked |
-| `Tail Risk` | tail_risk ≥ 0.8 → All entry blocked |
-| `Direction Uncertainty` | \|p_dir − 0.5\| ≤ 0.05 → Neutral zone blocked |
-| `Range Extreme` | Price at range boundary → blocked |
-| `Toxicity Shield` | VPIN toxicity score threshold → blocked |
-| `Liquidation Probability` | liq_distance < safety threshold → blocked |
-| `Card Freshness` | card_age > 5,400s → slot fill blocked |
-
-The goal is not just performance. The goal is **survivable performance**.
 
 <details>
-<summary><strong>Battle-tested against real liquidation events</strong></summary>
+<summary><strong>5. AI Evolution Lab v3 — Self-Improving Architecture</strong></summary>
 
-- **2026-02-02 · MERLUSDT** · SHORT vs +37% LONG rally → 100% liquidation → 5-layer defense added
-- **2026-02-04 · CLO/USDT** · p_dir=0.50 uncertainty → Neutral Zone ±5% gate added
+13 evolution modules apply the Strangler Fig pattern: new capabilities wrap the existing system without modifying core logic. EnhancerBus writes only to `DecisionPacket.extra_context` — main fields remain read-only.
 
-Every safety layer has a real failure behind it.
+Evolution pipeline: `Hypothesis → POPPER E-value → OPE Counterfactual → Digital Twin → Shadow (7d min) → Canary (SPA p<0.01) → Production`
+
+Active production modules: ACI Risk · EventStore · Digital Twin · Counterfactual Lab · Black Swan Ensemble (2/4 vote) · Alpha Foundry (MAP-Elites) · OODA Loop
+
+→ [AI Evolution Lab documentation](./docs/evolution-lab.md)
 
 </details>
 
----
+<details>
+<summary><strong>6. Game Theory Engine — Market Microstructure Defense</strong></summary>
 
-## 🔬 AI Evolution Lab v3
+VPIN (Volume-synchronized Probability of Informed trading) fused with OFI (Order Flow Imbalance) via lock-free SharedMemory at <1ms latency. Detects institutional adverse selection before execution.
 
-Strategy evolution under strict scientific discipline.
+Stealth execution: game-theoretic order randomization prevents pattern exploitation by co-located HFT. CFR/DCFR regret minimization for optimal execution strategy under adversarial conditions.
 
-```
-New Hypothesis → Research Lab (POPPER E-value)
-              → Counterfactual Lab (OPE Capped SNIPS)
-              → Digital Twin (EPE/FRE/LPE parity <5%)
-              → Shadow (min. 7 days)
-              → Canary (10% traffic, SPA p<0.01)
-              → Production
-```
+→ [Execution documentation](./docs/execution.md)
 
-**Active modules (Production):** ACI Risk · EventStore (SQLite WAL) · Digital Twin · Counterfactual Lab · Black Swan Ensemble · Alpha Foundry · OODA Loop
-
-**Key invariants:** No direct deployment without shadow. No post-hoc hypotheses. Black Swan requires 2/4 ensemble vote. OODA Decide/Act is offline-only.
+</details>
 
 ---
 
@@ -179,38 +164,40 @@ New Hypothesis → Research Lab (POPPER E-value)
 
 | Component | Detail |
 | :--- | :--- |
-| **Active Agents** | 16 specialized AI agents |
-| **Deployment Pipeline** | Shadow → Canary → Production |
+| **Active Agents** | 16 specialized AI agents (A0–A15) |
+| **Safety Layers** | 7-Layer Entry Gate · 43 invariant contracts |
+| **Deployment Pipeline** | Shadow → Canary (10%) → Production |
+| **Learning** | AWR (5-min heartbeat) + Thompson Sampling (30-min rotation) |
+| **Evolution** | AI Evolution Lab · 13 modules · MAP-Elites genome search |
 | **Platform** | Binance USDT Perpetual Futures |
-| **Learning** | AWR + Thompson Sampling (dual online) |
-| **Safety Layers** | 7-Layer Entry Gate |
-| **Core Daemon** | ~11,000 lines production code |
-| **Test Suite** | 442 test files |
-| **Evolution Modules** | 53 modules across 13 subsystems |
+| **Hardware** | Apple Silicon M4 Pro · Metal + MLX acceleration |
+| **Codebase** | ~11,000 lines production daemon · 442 test files |
+| **Validation** | CPCV + PBO overfitting detection (academic standard) |
+| **Academic refs** | 12 peer-reviewed papers (López de Prado, Easley, Adams & MacKay, Hasani…) |
 
 ---
 
-## 📦 Public Scope — Open-Core
+## 📦 Open Architecture — What We Share
 
-This repository is the **public-facing documentation layer** of DROS.
+This repository is the **public architecture layer** of DROS.
 
-**🟢 Included**
+**🟢 Open (this repository)**
+- System architecture and agent pipeline design
+- Safety gate principles and invariant contracts
+- Learning methodology (AWR, Thompson Sampling, CPCV+PBO)
+- Evolution framework (Strangler Fig, Shadow→Canary pipeline)
+- Academic references and validation standards
+- Failure case studies (MERL liquidation, CLO uncertainty event)
 
-- Architecture overview and system diagrams
-- Agent pipeline documentation (A0–A14)
-- Safety gate specifications and invariant contracts
-- Learning pipeline design
-- Evolution Lab architecture
-- Academic references and methodology
+**🔴 Closed (proprietary)**
+- Production daemon implementation (`execution/` layer)
+- Learned strategy parameters and model weights
+- Live configuration, positions, and runtime state
+- Exact safety thresholds and calibration values
+- Backtested return figures or live PnL data
 
-**🔴 Not Included**
-
-- Live API keys or exchange credentials
-- Private runtime state or checkpoint files
-- ML model weights or trained parameters
-- Production deployment configurations
-- Proprietary execution infrastructure
-- Strategy parameters or backtested return figures
+> Architecture transparency builds community trust.  
+> Execution parameters protect the system's edge.
 
 ---
 
@@ -218,36 +205,37 @@ This repository is the **public-facing documentation layer** of DROS.
 
 | Document | Description |
 | :--- | :--- |
-| [Architecture](./docs/architecture.md) | Full system architecture and agent pipeline |
-| [Agents](./docs/agents.md) | 16-Agent roles, contracts, and interaction patterns |
-| [Safety](./docs/safety.md) | 7-Layer Entry Gate and invariant contracts |
+| [Architecture](./docs/architecture.md) | Full system architecture and 16-agent pipeline |
+| [Agents](./docs/agents.md) | Agent roles, contracts, and interaction patterns |
+| [Safety](./docs/safety.md) | 7-Layer Entry Gate, invariant contracts, liquidation defense |
 | [Learning](./docs/learning.md) | AWR + Thompson Sampling + BLS pipeline |
-| [Execution](./docs/execution.md) | v11 execution engine, AQER, AOSM |
+| [Execution](./docs/execution.md) | v11 execution engine, AQER, AOSM v2 |
 | [Evolution Lab](./docs/evolution-lab.md) | AI Evolution Lab v3 — 13 modules |
 | [FAQ](./docs/faq.md) | Common questions answered |
-| [Performance](./docs/performance.md) | System operational metrics |
+| [Performance](./docs/performance.md) | Operational metrics (no financial claims) |
 | [Roadmap](./ROADMAP.md) | Completed milestones and upcoming work |
 
 ---
 
 ## 🛠️ Tech Stack
 
-**Runtime:** Python 3.13+ · Apple MLX (M4 Pro NPU) · SQLite WAL
+**Runtime:** Python 3.13+ · Apple MLX (M4 Pro NPU) · SQLite WAL · asyncio
 
-**ML:** XGBoost · LightGBM · PyTorch · pyribs MAP-Elites · FAISS
+**ML/Optimization:** XGBoost · LightGBM · PyTorch · pyribs MAP-Elites · FAISS
 
-**Algorithms:** Yang-Zhang Vol · Triple-Barrier · CPCV · CFR/DCFR · VPIN+OFI · AWR · BOCPD · Hawkes
+**Algorithms:** Yang-Zhang Volatility · Triple-Barrier Labels · CPCV · CFR/DCFR · VPIN+OFI · AWR · BOCPD · Hawkes Process · CfC Neural Networks
 
-**Infra:** Binance Futures REST+WebSocket · macOS launchd · POSIX SharedMemory · asyncio
+**Infrastructure:** Binance Futures REST+WebSocket · macOS launchd · POSIX SharedMemory
 
 ---
 
 ## 📡 DROS Research Community
 
-Market microstructure anomalies that institutional capital exploits.  
-DROS Research Lab shares **public-safe regime alerts and architecture updates** with the community.
+Market microstructure is asymmetric. Institutional capital exploits patterns that most retail systems cannot detect.
 
-> Live research notes · Regime change signals · Architecture release previews
+DROS Research Lab shares **public-safe architecture insights, regime observations, and system design notes** with the community.
+
+> No financial advice. No alpha signals. Engineering transparency only.
 
 [![Telegram](https://img.shields.io/badge/Join_DROS_Research_Lab-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/deepreasoningos)
 
@@ -261,17 +249,20 @@ For exchange partners, quant funds, and institutional investors:
 
 **Private architecture briefing available under NDA.**
 
-- Technology licensing discussions
+- Technology licensing
 - Strategic partnership conversations
 - Institutional deployment consulting
+- Acquisition discussions
 
 📩 **[enterprise@deepreasoningos.com](mailto:enterprise@deepreasoningos.com)**
 
-*We do not accept unsolicited investment via GitHub Issues. Please use the email above.*
+*We do not use GitHub Issues for enterprise inquiries.*
 
 ---
 
 ## 📖 Citation
+
+If you reference DROS architecture in academic work:
 
 ```bibtex
 @software{dros2026,
@@ -281,6 +272,8 @@ For exchange partners, quant funds, and institutional investors:
   url       = {https://github.com/dros-core/deep-reasoning-os}
 }
 ```
+
+Full citation format: [CITATION.cff](./CITATION.cff)
 
 ---
 
@@ -295,6 +288,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for scope and guidelines.
 
 *DROS is a quantitative research and systems architecture project.*  
 *Nothing in this repository constitutes financial advice, investment solicitation, or a guarantee of future performance.*  
-*All signals, architecture notes, and examples are for informational and research purposes only.*
+*All architecture notes and examples are for informational and research purposes only.*
 
 </div>
