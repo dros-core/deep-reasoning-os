@@ -80,7 +80,7 @@ graph LR
 ## 🧠 Core Pillars
 
 <details>
-<summary><strong>1. 16-Agent Cooperative Pipeline (A0–A15)</strong></summary>
+<summary><strong>1. 16-Agent Cooperative Pipeline</strong></summary>
 
 Each agent owns exactly one responsibility — no duplicate calculations. The pipeline flows from data ingestion (A0–A2) through direction reasoning (A3–A5), safety validation (A6), grid design (A4), execution (A10–A11), monitoring (A12–A13), learning (A7–A8), and self-evolution coordination (A16).
 
