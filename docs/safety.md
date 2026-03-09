@@ -21,11 +21,11 @@ Every entry passes through 7 sequential gates. **Any single failure blocks execu
 Entry Request
     │
     ├─ Layer 1: Macro Sentiment Veto
-    │     PSI ≤ −0.5 → Long completely blocked
+    │     Macro Sentiment threshold → Long completely blocked
     │     → FAIL_MACRO_SENTIMENT_VETO
     │
     ├─ Layer 2: Tail Risk Veto
-    │     tail_risk ≥ 0.8 → All entry blocked (direction-agnostic)
+    │     Tail Risk threshold → All entry blocked (direction-agnostic)
     │     → FAIL_TAIL_RISK_VETO
     │
     ├─ Layer 3: Direction Uncertainty Block
@@ -45,7 +45,7 @@ Entry Request
     │     → FAIL_AOSM_UNSAFE_MARGIN_RELEASE
     │
     └─ Layer 7: AQER StaleGate
-          card_age > 5,400s → slot fill completely blocked
+          Stale card detected → slot fill completely blocked
           → FAIL_AQER_STALE_ENTRY
 ```
 
@@ -55,13 +55,13 @@ Entry Request
 
 | Gate | Condition | Action | Code |
 |------|-----------|--------|------|
-| Macro Sentiment | PSI ≤ −0.5 | Block Long | `FAIL_MACRO_SENTIMENT_VETO` |
-| Tail Risk | tail_risk ≥ 0.8 | Block all | `FAIL_TAIL_RISK_VETO` |
+| Macro Sentiment | PSI above threshold | Block Long | `FAIL_MACRO_SENTIMENT_VETO` |
+| Tail Risk | tail_risk above threshold | Block all | `FAIL_TAIL_RISK_VETO` |
 | Direction Uncertainty | \|p_dir−0.5\| ≤ 0.05 | Block entry | — |
 | Range Extreme | Price at boundary | Block entry | — |
 | Toxicity Shield | VPIN > threshold | Block entry | — |
 | Liquidation Probability | liq_distance < safety | Block margin | `FAIL_AOSM_UNSAFE_MARGIN_RELEASE` |
-| Card Freshness | card_age > 5,400s | Block slots | `FAIL_AQER_STALE_ENTRY` |
+| Card Freshness | card age exceeds TTL | Block slots | `FAIL_AQER_STALE_ENTRY` |
 
 ---
 
@@ -150,8 +150,8 @@ if abs(p_dir_12h - 0.5) <= 0.05:
 | `FAIL_N_BELOW_10` | N_total < 10 |
 | `FAIL_SPACING_TOO_TIGHT` | spacing < k_floor × fees |
 | `FAIL_HASH_MISMATCH` | sha256 integrity check failed |
-| `FAIL_MACRO_SENTIMENT_VETO` | PSI ≤ −0.5 |
-| `FAIL_TAIL_RISK_VETO` | tail_risk ≥ 0.8 |
+| `FAIL_MACRO_SENTIMENT_VETO` | PSI above configured threshold |
+| `FAIL_TAIL_RISK_VETO` | tail_risk above configured threshold |
 | `FAIL_PBO_OVERFIT` | PBO ≥ 0.3 in backtest |
 | `FAIL_AOSM_UNSAFE_MARGIN_RELEASE` | Liquidation distance insufficient |
 
@@ -186,7 +186,7 @@ p_dir ∈ [0, 1]  (calibrated probability)
 
 Neutral Zone:    |p_dir − 0.5| ≤ 0.05  →  entry blocked
 Abstain:         confidence < ABSTAIN_THRESHOLD  →  direction withheld
-Macro Veto:      PSI ≤ −0.5  →  Long blocked
+Macro Veto:      PSI above threshold  →  Long blocked
 
 Dynamic threshold table (no hardcoded values):
   threshold = table[regime][cluster]
