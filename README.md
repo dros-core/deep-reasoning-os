@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="로고이미지URL" alt="DROS Logo" width="150"/>
+  <img src="'/Users/park/Documents/Project/Image/Gemini_Generated_Image_g63ciug63ciug63c (1).png'" alt="DROS Logo" width="150"/>
 
   # Deep Reasoning OS (DROS)
   
