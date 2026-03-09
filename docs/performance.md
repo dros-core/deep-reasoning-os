@@ -14,7 +14,7 @@
 | **Tick processing** | asyncio event loop, non-blocking |
 | **Checkpoint write** | Atomic: write → fsync → rename |
 | **Microstructure latency** | VPIN+OFI via SharedMemory, lock-free, <0.01ms |
-| **Order jitter** | ±15% randomization + Poisson timing (stealth execution) |
+| **Order jitter** | ±15% randomization + Poisson timing |
 | **Slot management** | Dynamic allocation via AOSM v2 |
 
 ---
@@ -38,7 +38,7 @@
 | **AWR update frequency** | Per heartbeat |
 | **Thompson Sampling update** | Per rotation cycle, 30-min throttle per symbol |
 | **BLS isolation** | Separate subprocess (RSS fully reclaimed after run) |
-| **Memory gate (BLS)** | 2.5 GB lightweight mode / 6.0 GB full mode |
+| **Memory gate (BLS)** | 2.5 GB lightweight / 6.0 GB full mode |
 | **Replay buffer** | deque(maxlen=10,000), oldest auto-evicted |
 | **Calibrator selection** | <50 samples: Temperature Scaling / 50–500: Beta / >500: Isotonic |
 | **PBO overfit threshold** | ≥ 0.3 → training blocked |
@@ -74,8 +74,6 @@
 
 ## API Constraints
 
-DROS operates within Binance API rate limits as a first-order constraint:
-
 | Constraint | Value |
 | :--- | :--- |
 | **Weight limit target** | ≤ 800/1,200 (66% of limit) |
@@ -99,6 +97,5 @@ These are internal operational targets — not financial return targets.
 ---
 
 > Nothing on this page constitutes financial advice or a guarantee of future system behavior.
-> Metrics reflect the production system as of DROS v11.20.
 
 *→ See [Architecture](./architecture.md) · [Safety](./safety.md) · [Learning](./learning.md)*
