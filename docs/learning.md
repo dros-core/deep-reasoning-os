@@ -180,8 +180,8 @@ Required:
 
 | KPI | Target | Current |
 |-----|--------|---------|
-| Cost Gate pass rate | ≥ 90% | 95% ✅ |
-| Negative ROI cards | 0% | 0% ✅ |
+| Cost Gate pass rate | ≥ 90% | Measuring |
+| Negative ROI cards | 0% | Measuring |
 | Live-Backtest gap | ≤ 10% | Measuring |
 | Card generation rate | ≥ 80% | Measuring |
 
