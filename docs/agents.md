@@ -1,109 +1,33 @@
 # 🤖 Agents — Deep Reasoning OS (DROS)
 
-> 16-Agent roles, contracts, and interaction patterns
+DROS coordinates 16 specialized AI agents through a structured pipeline. Each agent owns exactly one responsibility — no agent recomputes another's output (SSOT principle).
 
 ---
 
-## Overview
+## Agent Reference Table
 
-DROS operates through **16 specialized agents** that collaborate in a structured pipeline.  
-Each agent owns a specific domain — no agent duplicates another's computation.
-
-**Core principle:** Every parameter has exactly one owner (SSOT).  
-`spacing_dec` is computed by A4. A9 does not recompute it. No exceptions.
-
----
-
-## Agent Roles & Contracts
-
-### A0 — Orchestrator
-- **Role:** Controls execution order, manages exceptions, triggers sub-pipelines
-- **Layer6:** MassGen (parallel bulk generation)
-- **Key rule:** Entry point for all symbol processing cycles
-
-### A0.5 — Macro Regime Engine
-- **Role:** Classifies market regime as BULL / BEAR / SIDEWAYS
-- **Outputs:** `regime`, `psi_score`, `macro_sentiment`
-- **Key rule:** PSI ≤ −0.5 → Long veto (`FAIL_MACRO_SENTIMENT_VETO`)
-
-### A1 — Data & Feature Collection
-- **Role:** Collects and computes all market features
-- **Outputs:** `σ̂` (Yang-Zhang), `ATR`, `depth_proxy`, `fees_dec`, `sentiment`
-- **Key rule:** Source of all raw market data — no agent fetches data independently
-
-### A2 — Reasoning Engine
-- **Role:** LLM-assisted structuring + ensemble ML inference
-- **Outputs:** `mode_hint` (turbo/steady), `k_floor`, `bias`
-- **Layer6:** Kelly Risk
-- **Key rule:** LLM is a **structurer only** — never a decision maker
-
-### A3 — Safety Guardian
-- **Role:** Pre-entry risk correction and hard blocks
-- **Outputs:** PASS / BLOCK + reason code
-- **Layer6:** Kelly Risk
-- **Key rule:** Direction uncertainty |p_dir − 0.5| ≤ 0.05 → block
-
-### A4 — Candidate Generator
-- **Role:** Generates grid candidates using EnsembleN* and SpacingOracleSSOT
-- **Outputs:** `N_total`, `spacing_dec`, `grid_type`
-- **Layer6:** Fibonacci
-- **SSOT owner:** `spacing_dec` — no other agent may recompute this
-
-### A5 — Cost Validator
-- **Role:** Validates spacing against fee floor
-- **Outputs:** PASS / `FAIL_SPACING_TOO_TIGHT` + `spacing_dec_min`
-- **Layer6:** LogSimilarity
-- **Formula:** `spacing_dec ≥ k_floor × (fees_dec + slippage_rt_dec)`
-
-### A6 — Scoring & Selection
-- **Role:** Selects top-K combinations from validated candidates
-- **Outputs:** Final `direction`, `leverage`, `grid_type`, composite score
-- **Layer6:** MoE Router
-
-### A7 — Self-Correction
-- **Role:** Repairs failed candidates automatically
-- **Outputs:** Corrected candidate → returned to A4/A5
-- **Layer6:** ExpLearning
-- **Key rule:** **Sole agent allowed to re-sign** CardSpec (only during self-correction)
-- **Actions:** `spacing_increase` / `reanchor` / `N_recalculate`
-
-### A8 — Backtest Simulator
-- **Role:** Validates candidates via historical simulation
-- **Outputs:** `roi`, `cvar`, `efh` (expected fill hours), `fcr` (fill completion rate)
-- **Validation:** CPCV + PBO — PBO ≥ 0.3 → `FAIL_PBO_OVERFIT`
-
-### A9 — CardSpec Officer
-- **Role:** Signs and seals the final CardSpec
-- **Outputs:** `CardSpec(STRICT)` + `sha256` checksum
-- **Layer6:** Consensus
-- **Key rule:** Once signed, CardSpec is **immutable** → `FAIL_CARDSPEC_MUTATION` (P0)
-
-### A10 — Execution Manager
-- **Role:** Manages the execution FSM (Staging → Observe → Live)
-- **Outputs:** Order placement, position state transitions
-- **Layer6:** FSM
-
-### A11 — Risk Governance
-- **Role:** Monitors exposure, leverage, and loss limits in real time
-- **Layer6:** Kelly Risk
-- **Key rule:** Enforces position-level and portfolio-level risk caps
-
-### A12 — SRE Monitor
-- **Role:** System reliability, KPI tracking, alert generation, runbook automation
-- **Monitors:** Cost Gate ≥ 90% · Negative ROI = 0 · Live-Backtest gap ≤ 10%
-
-### A13 — Debug & QA
-- **Role:** Runtime contract enforcement
-- **Layer6:** LogSimilarity
-- **Blocks:** Any `_pct` unit usage → `FAIL_UNIT_PCT` (P0)
-
-### A14 — Reliability Analyst
-- **Role:** Confidence and reliability scoring
-- **Target:** Reliability ≥ 0.85
+| Agent | Role | Key Output | Critical Contracts |
+|:---|:---|:---|:---|
+| **A0** | Orchestrator | Execution order, exception routing | MassGen layer6 |
+| **A0.5** | Macro Regime Engine | BULL / BEAR / SIDEWAYS judgment | PSI threshold → long veto |
+| **A1** | Data & Feature Collection | Yang-Zhang σ, ATR, fees, sentiment | — |
+| **A2** | Reasoning Engine | LLM-structured bias, ensemble ML output | Kelly Risk layer6 |
+| **A3** | Safety Guardian | Pre-entry risk block | Blocks on uncertainty |
+| **A4** | Candidate Generator | N_total (EnsembleN*), spacing_dec | **SSOT owner of spacing_dec** |
+| **A5** | Cost Validator | PASS / FAIL + minimum spacing | Fee-floor compliance |
+| **A6** | Scorer & Selector | Top-K grid configuration confirmed | MoE Router layer6 |
+| **A7** | Self-Corrector | Repaired candidate after FAIL | **Sole agent permitted to re-sign CardSpec** |
+| **A8** | Backtest Simulator | ROI, CVaR, EFH, FCR | CPCV + PBO overfitting guard |
+| **A9** | CardSpec Officer | Immutable sha256-sealed CardSpec | Immutable after signature |
+| **A10** | Execution Manager | FSM: Staging → Observe → Live | — |
+| **A11** | Risk Governance | Exposure, leverage, loss limits | Kelly layer6 |
+| **A12** | SRE Monitor | KPI tracking, runbook automation | — |
+| **A13** | Debug & QA | Contract enforcement, `_pct` blocking | LogSimilarity layer6 |
+| **A14** | Reliability Analyst | Confidence and reliability scoring | Reliability target enforcement |
 
 ---
 
-## Interaction Patterns
+## Call Chains
 
 ### Normal Card Creation
 ```
@@ -112,47 +36,59 @@ A0 → A1 → A2 → A4 → A5 → A6 → A9
 
 ### Self-Correction Loop
 ```
-A5 (FAIL_SPACING_TOO_TIGHT)
-  → A7 (repair: spacing_increase / reanchor / N_recalculate)
-  → A4 (regenerate)
-  → A5 (re-validate)
-  → A6 (score)
-  → A9 (sign)
+A5 (FAIL) → A7 (repair) → A4 (regenerate) → A5 (re-validate) → A6 → A9
 ```
 
 ### Backtest Integration
 ```
-A9 (signed card)
-  → A8 (CPCV backtest)
-  → A6 (re-score with backtest result)
-  → A9 (final sign)
+A9 (card) → A8 → A6 (re-score) → A9 (final seal)
 ```
 
----
-
-## Parameter Propagation (SSOT Chain)
-
-| Parameter | Owner | Consumers |
-|-----------|-------|-----------|
-| `mode` (turbo/steady) | A0 | A2 → A4 |
-| `k_floor` | A2 | A4 → A5 |
-| `spacing_dec` | A4 | A5 → A7 → A9 |
-| `σ̂` (volatility) | A1 | A4 (via SpacingOracleSSOT) |
-| `regime` | A0.5 | A2 → A4 |
+### Parameter Propagation
+```
+mode (turbo/steady):  A0 → A2 → A4
+k_floor:              A2 → A4 → A5
+spacing_dec:          A4 → A5 → A7 → A9
+```
 
 ---
 
 ## Critical Invariants
 
-| Code | Rule | Severity |
-|------|------|----------|
-| `FAIL_UNIT_PCT` | `_pct` unit usage anywhere | P0 — immediate halt |
-| `FAIL_CARDSPEC_MUTATION` | CardSpec modified after A9 signing | P0 — immediate halt |
-| `FAIL_N_BELOW_10` | N_total < 10 | P1 — learning halt |
-| `FAIL_SPACING_TOO_TIGHT` | spacing < k_floor × fees | P1 — learning halt |
-| `FAIL_PBO_OVERFIT` | PBO ≥ 0.3 in backtest | P1 — learning halt |
-| `FAIL_SPACING_SSOT_MISMATCH` | SpacingOracle bypassed | P0 — immediate halt |
+| Code | Severity | Rule |
+|:---|:---:|:---|
+| `FAIL_UNIT_PCT` | P0 | Only `_dec` units permitted — `_pct` triggers immediate halt |
+| `FAIL_CARDSPEC_MUTATION` | P0 | CardSpec is immutable after A9 signature |
+| `FAIL_SPACING_SSOT_MISMATCH` | P0 | Spacing must be computed by SpacingOracleSSOT only |
+| `FAIL_N_BELOW_10` | P1 | Grid count minimum enforced |
+| `FAIL_SPACING_TOO_TIGHT` | P1 | Spacing must meet fee-floor multiple |
+| `FAIL_PBO_OVERFIT` | P1 | A8 blocks training when backtest overfitting is detected |
 
 ---
 
-*→ See [Architecture](./architecture.md) · [Safety](./safety.md)*
+## Layer6 Components
+
+Layer6 activates automatically when task complexity exceeds threshold (≥ 0.5).
+
+| Component | Role |
+|:---|:---|
+| **Fibonacci** | Task decomposition into optimal phases |
+| **PhiContext** | File read optimization |
+| **Kelly Risk** | Pre-execution risk assessment |
+| **LogSimilarity** | Pattern reuse from past similar tasks |
+| **MoE Router** | Expert mixture routing |
+| **ExpLearning** | Exponential learning rate tracking |
+| **Consensus** | Multi-agent majority validation |
+| **MassGen** | Parallel bulk generation (A0) |
+
+---
+
+## Design Principles
+
+**Single Responsibility**: Each agent computes one thing. A4 computes spacing; A5 validates it; A9 seals it. No overlap.
+
+**SSOT Enforcement**: Parameters flow in one direction. A7 may re-sign after self-correction — no other agent has this permission.
+
+**Deterministic Contracts**: Agent behavior is governed by named invariant contracts enforced at runtime. AI assists; deterministic code decides.
+
+**Advisory-Only LLM**: LLM outputs are structured suggestions. They do not directly trigger orders. All LLM calls route through a broker with timeout and deterministic fallback.
