@@ -1,93 +1,109 @@
-# ❓ Frequently Asked Questions
+# ❓ FAQ — Deep Reasoning OS (DROS)
 
 ---
 
 ## About DROS
 
-### What is DROS?
+**Q: What is DROS?**
 
-Deep Reasoning OS is a multi-agent autonomous trading system for Binance USDT perpetual futures. It is a research and engineering project — not a managed fund, not a trading service, not a bot you can download and run.
+DROS (Deep Reasoning OS) is a research-first autonomous trading architecture for Binance USDT perpetual futures. It coordinates 16 specialized AI agents through a structured pipeline with deterministic safety contracts and recursive online learning.
 
-### Is this open source?
+**Q: Is this open source?**
 
-DROS operates as **open architecture, closed execution**. The architecture documentation, design principles, invariant contracts, and research methodology are publicly shared here. The production trading infrastructure — execution code, ML model weights, runtime configuration, and strategy parameters — are private.
+DROS follows an **Open Architecture, Closed Execution** model:
 
-### Can I run DROS myself?
+- **Public**: Architecture principles, agent roles, safety gate structure, learning methodology, academic references, invariant contract names, the MERL liquidation case study.
+- **Private**: Production daemon implementation, exact thresholds, ML weights, learned presets, live positions, API credentials.
 
-The production system is not publicly released. This repository documents how DROS works architecturally. If you are interested in a commercial or research collaboration, see [Enterprise & Partnerships](../README.md#-enterprise--partnerships).
+The architecture is fully documented. The execution edge is not published.
 
-### Why share the architecture but not the code?
+**Q: What exchange does DROS trade on?**
 
-Sharing the architecture creates value for the research community, enables collaboration on hard problems (market microstructure, safety-critical systems, online learning), and demonstrates technical depth. The execution layer contains operational details that would require extensive context and infrastructure to use correctly.
+Binance USDT Perpetual Futures. DROS is designed for a single-exchange, single-account deployment on Apple M4 Pro hardware.
 
----
+**Q: Can I use DROS for my own trading?**
 
-## Safety & Risk
+The public repository contains architecture documentation and research materials, not a deployable trading bot. The execution layer (daemon, order routing, learned models) is private.
 
-### Does DROS lose money?
+**Q: What is the license?**
 
-Like any trading system, DROS operates in an uncertain environment. DROS was designed with survivability as a first-order concern — the 7-Layer Entry Gate, invariant contract system, and shadow-to-production deployment pipeline all exist to minimize catastrophic outcomes. Past operational data is not published here. Nothing in this repository is a performance guarantee.
+DROS is licensed under **Business Source License 1.1 (BSL 1.1)**:
+- Non-commercial use: permitted
+- Commercial use: requires separate license agreement
+- Converts to Apache 2.0 after 4 years
 
-### What happened with the MERLUSDT liquidation?
-
-On 2026-02-02, DROS held a SHORT position in MERLUSDT that experienced a +37% LONG rally, resulting in a 100% liquidation event. This event directly triggered the addition of 5 new safety layers. The full architectural response is documented in [Safety](./safety.md).
-
-### Is this financial advice?
-
-No. Nothing in this repository constitutes financial advice, investment solicitation, or a guarantee of future performance.
+See [LICENSE](../LICENSE) for full terms.
 
 ---
 
-## Community & Contact
+## Safety & Operations
 
-### How do I join the research community?
+**Q: Is this financial advice?**
 
-The DROS Research Lab Telegram channel shares public-safe regime alerts, architecture release notes, and research discussions.
+No. DROS is a research and engineering project. Nothing in this repository constitutes financial advice. Crypto futures trading involves substantial risk of loss. Past system behavior does not predict future results.
 
-**[→ Join DROS Research Lab on Telegram](https://t.me/deepreasoningos)**
+**Q: What happened with the MERL liquidation?**
 
-### How do I contact DROS for a business discussion?
+On 2026-02-02, DROS judged MERLUSDT as a SHORT candidate. The asset rallied +37% in a LONG direction, resulting in 100% liquidation of that position.
 
-For technology licensing, strategic partnerships, or institutional deployment consulting:
+This event triggered the addition of 5 new safety layers. The full post-mortem is documented in [docs/case-study-merl/](./case-study-merl/).
 
-📩 **[enterprise@deepreasoningos.com](mailto:enterprise@deepreasoningos.com)**
+DROS documents liquidation events publicly — not to claim they are rare, but to show how the system learns from them.
 
-Private architecture briefings are available under NDA. Please do not use GitHub Issues for business inquiries.
+**Q: How does DROS prevent the same liquidation from happening again?**
 
-### How do I report a security concern?
+The 7-Layer Entry Gate now includes macro sentiment veto, tail risk assessment, direction uncertainty blocking, VPIN toxicity detection, liquidation probability validation, and card freshness enforcement. Any single gate failure halts the pipeline.
 
-📩 **[security@deepreasoningos.com](mailto:security@deepreasoningos.com)**
+Additionally, the AI Evolution Lab runs new strategies in shadow mode for a minimum of 7 days before any capital is allocated.
 
-See [SECURITY.md](../SECURITY.md) for full details.
+**Q: Is DROS running live right now?**
+
+The system is in production operation. Current positions, equity, and live metrics are not published.
 
 ---
 
 ## Technical
 
-### What is Yang-Zhang volatility?
+**Q: What is a CardSpec?**
 
-Yang-Zhang is a volatility estimator that uses Open, High, Low, and Close prices to compute a more accurate estimate than close-to-close methods. DROS uses it as the primary input to SpacingOracleSSOT for dynamic grid spacing. ATR-only estimation is explicitly forbidden (`INVARIANT-SPACING-04`).
+A CardSpec is a cryptographically sealed parameter set that governs a single trade. It is generated by the agent pipeline, validated through safety and backtest gates, and sealed by A9 with a sha256 hash. Once signed, it cannot be modified — any mutation triggers an immediate system halt (`FAIL_CARDSPEC_MUTATION`).
 
-### What is VPIN?
+**Q: What is SpacingOracleSSOT?**
 
-Volume-synchronized Probability of Informed Trading. DROS uses VPIN fused with Order Flow Imbalance (OFI) to detect toxic order flow. High VPIN triggers the Toxicity Shield gate.
+A single computation source for grid spacing across the entire system. All agents read spacing from this oracle — no agent recomputes it independently. This prevents parameter drift and ensures consistency between validation and execution.
 
-### What is Thompson Sampling doing here?
+**Q: What is Yang-Zhang volatility?**
 
-Thompson Sampling is used as a Bayesian bandit for preset selection. At each rotation cycle, the system samples from posterior distributions over preset performance (regime-conditioned), observes the outcome, and updates the posterior. This replaces manual parameter tuning with adaptive online learning.
+A four-factor volatility estimator using Open, High, Low, and Close prices. It is statistically more efficient than close-to-close or ATR for estimating daily realized volatility — particularly for instruments with overnight gaps.
 
-### What does "Shadow → Canary → Production" mean?
+**Q: What is VPIN?**
 
-Every new strategy or model change goes through three stages:
+Volume-synchronized Probability of Informed Trading. A microstructure metric that estimates the proportion of informed order flow. DROS uses VPIN as part of the ToxicityShield layer to avoid entering positions when informed traders are likely active on the opposite side.
 
-1. **Shadow**: Runs alongside production, generates signals, does not execute orders. Minimum 7 days.
-2. **Canary**: Routes 10% of live traffic. SPA test (p < 0.01) required before promotion.
-3. **Production**: Full deployment.
+**Q: What is Thompson Sampling doing here?**
 
-### What is AWR?
+Thompson Sampling is a Bayesian bandit algorithm that selects which preset configuration to use for each symbol. It maintains a Beta distribution over each preset's success probability and samples from it — naturally balancing exploration and exploitation over time.
 
-Advantage-Weighted Regression — an off-policy reinforcement learning algorithm. DROS uses AWR as the primary RL agent for grid parameter optimization, replacing the previous PPO implementation.
+**Q: What is the Shadow → Canary → Production pipeline?**
+
+All new strategies and features begin in shadow mode: full validation runs, but no capital is committed. After a minimum 7-day shadow period and a statistical significance test (SPA, p < 0.01), a strategy is promoted to canary (10% of capital). Full production allocation follows after further validation.
 
 ---
 
-*→ See [Architecture](./architecture.md) · [Safety](./safety.md) · [Learning](./learning.md)*
+## Community & Enterprise
+
+**Q: How do I follow DROS research?**
+
+Join the [DROS Research Lab on Telegram](https://t.me/deepreasoningos). The channel shares public-safe architecture insights, regime change observations, and system design notes.
+
+> No financial advice. No copied signals. Public-safe engineering notes only.
+
+**Q: How do I contact DROS for enterprise or partnership?**
+
+Email [enterprise@deepreasoningos.com](mailto:enterprise@deepreasoningos.com). Private architecture briefings are available under NDA for exchange partners, institutional desks, and strategic buyers.
+
+Do not use GitHub Issues for enterprise inquiries.
+
+**Q: How do I report a security vulnerability?**
+
+Email [security@deepreasoningos.com](mailto:security@deepreasoningos.com). Do not open a public GitHub Issue for security concerns.
