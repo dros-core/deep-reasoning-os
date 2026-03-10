@@ -1,5 +1,8 @@
 <div align="center">
 
+<img width="300" height="300" alt="Gemini_Generated_Image_g63ciug63ciug63c-Photoroom" src="https://github.com/user-attachments/assets/a61acc20-bec2-4e40-a87c-e739163e782e" />
+
+
 # 🧠 Deep Reasoning OS (DROS)
 
 **Research-first crypto futures trading architecture powered by
