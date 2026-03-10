@@ -28,7 +28,9 @@ blows up when volatility spikes. I kept watching positions get liquidated not
 from bad strategy, but from parameters that couldn't adapt in real time.
 
 DROS is what I built to fix that. Developed solo on an **Apple M4 Pro**
-(24GB unified memory) with **Claude and GPT** as development partners.
+(24GB unified memory) with **Claude and GPT** as development partners —
+used for code review, refactoring, and iteration. All trading logic,
+risk models, and execution paths are human-designed and human-verified.
 Every failure is documented: the [MERL liquidation](./docs/case-study-merl.md)
 — a SHORT hit by a +37% LONG rally — is exactly what built the 7-layer safety gate.
 
