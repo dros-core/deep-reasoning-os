@@ -1,174 +1,72 @@
-# 🏗️ Architecture — Deep Reasoning OS (DROS)
+# DROS Architecture
 
-> Full system architecture and 16-Agent collaborative pipeline
+→ [Back to README](../README.md) · [Agents reference](./agents.md)
 
 ---
 
-## System Overview
+## Full Pipeline
 
-DROS is a **layered operating architecture** built around one principle:  
-**Execution comes only after deterministic validation.**
-
-```
-┌─────────────────────────────────────────────────────┐
-│              DEEP REASONING OS — Full Flow           │
-└─────────────────────────────────────────────────────┘
-
-[Binance Market Data]
-  WebSocket (real-time trades / order book)
-  REST API  (OHLCV, positions, balance)
-         ↓
-[A1: Data & Feature Collection]
-  Yang-Zhang σ̂, ATR, depth proxy, funding rate, sentiment
-         ↓
-[A2: Reasoning Engine]        [A0.5: Macro Regime Engine]
-  LLM structuring + ensemble    BULL / BEAR / SIDEWAYS
-         ↓                              ↓
-[A3: Safety Guardian] ←── reject → STOP
-  p_dir uncertainty / Tail Risk / Range Extreme
-         ↓
-[A4: Candidate Generator]
-  N_total (EnsembleN*) + spacing_dec (SpacingOracleSSOT)
-         ↓
-[A5: Cost Validator]          [A7: Self-Correction]
-  k_floor × fees ≥ spacing      FAIL → spacing↑ / reanchor
-         ↓ PASS
-[A6: Scoring & Selection]
-  Top-K combination → leverage / direction / grid type
-         ↓
-[A8: Backtest Simulator]
-  CPCV + PBO validation / CVaR / EFH / FCR
-         ↓ PASS
-[A9: CardSpec Officer]
-  sha256 signature → immutable CardSpec
-         ↓
-[A10: Execution Manager]      [AQER: Entry Quality Router]
-  Staging → Observe → Live     StaleGate + StickyWindow
-         ↓
-[Binance Order Execution]
-  Reconciler → PLT (PerLevelTP) → Position Management
-         ↓
-[Learning Feedback Loop]
-  AWR Agent + Thompson Sampling + BLS → next cycle
-
-[A11–A14: Risk · SRE · Reliability] (parallel, always-on)
-[AI Evolution Lab] (EnhancerBus → shadow → canary → production)
+```mermaid
+flowchart TD
+    MD[Market Data\nWebSocket + REST] --> A1[A1 · Volatility\nYang-Zhang σ]
+    A1 --> A2[A2 · Reasoning\nEnsemble ML + LLM]
+    A2 --> A3{A3 · Safety\n7-Layer Gate}
+    A3 -->|Pass| A4[A4 · Candidate Gen\nEnsembleN* + SpacingOracle]
+    A3 -->|Fail| HALT[⛔ Halt]
+    A4 --> A5{A5 · Cost Validator\nfee-floor check}
+    A5 -->|Fail| A7[A7 · Self-Corrector\nrepair + retry]
+    A7 --> A4
+    A5 -->|Pass| A6[A6 · Scorer\ntop-K selection]
+    A6 --> A8[A8 · Backtest\nCPCV + PBO]
+    A8 --> A9[A9 · CardSpec Signer\nsha256 seal]
+    A9 --> EX[Execution\nReconciler + PLT]
+    EX --> LN[Learning\nAWR + Thompson]
+    LN --> A1
 ```
 
 ---
 
-## Agent Pipeline
+## Agent Call Chain
 
-| Agent | Role | Key Output | Layer6 |
-|-------|------|-----------|--------|
-| **A0** | Orchestrator | Execution order / exception management | MassGen |
-| **A0.5** | Macro Regime | BULL / BEAR / SIDEWAYS classification | — |
-| **A1** | Data & Features | σ̂, ATR, depth_proxy, fees, sentiment | — |
-| **A2** | Reasoning Engine | mode_hint, k_floor, bias | Kelly |
-| **A3** | Safety Guardian | Risk correction / entry block | Kelly |
-| **A4** | Candidate Generator | N_total, spacing_dec, grid_type | Fibonacci |
-| **A5** | Cost Validator | PASS/FAIL + spacing_dec_min | LogSimilarity |
-| **A6** | Scoring & Selection | Top-K combination finalized | MoE Router |
-| **A7** | Self-Correction | FAIL → auto-repair → regenerate | ExpLearning |
-| **A8** | Backtest Simulator | ROI, CVaR, EFH, FCR | — |
-| **A9** | CardSpec Officer | STRICT CardSpec + sha256 seal | Consensus |
-| **A10** | Execution Manager | Staging → Observe → Live FSM | FSM |
-| **A11** | Risk Governance | Exposure / leverage / loss limits | Kelly |
-| **A12** | SRE Monitor | KPI / alerts / runbook | — |
-| **A13** | Debug & QA | `_pct` block / complexity check | LogSimilarity |
-| **A14** | Reliability Analyst | Reliability ≥ 0.85 validation | — |
+| Stage | Agent | Input | Output | Invariant |
+|:------|:------|:------|:-------|:----------|
+| Data | A1 | OHLCV + Funding | Yang-Zhang σ, ATR | SSOT: SpacingOracle |
+| Reasoning | A2 | Market features | Ensemble ML + LLM bias | FAIL_LLM_DIRECT_CALL |
+| Safety | A3 | All signals | Pass/Fail | 7-Layer Gate |
+| Candidate | A4 | Safety pass | CardSpec draft | EnsembleN*, SSOT |
+| Validation | A5 | CardSpec | fee-floor check | FAIL_SPACING_TOO_TIGHT |
+| Correction | A7 | Failed card | Repaired card | Only re-sign authority |
+| Scoring | A6 | Validated cards | Top-K ranked | 12-metric composite |
+| Backtest | A8 | Top-K cards | PBO-validated | CPCV+PBO, FAIL_PBO_OVERFIT |
+| Signing | A9 | Validated card | sha256 sealed | FAIL_CARDSPEC_MUTATION |
+| Execution | A10–A14 | CardSpec | Live orders | FSM, Reconciler, PLT |
+| Evolution | A16 | All signals | Genome evolution | EVOL INVARIANTs |
 
 ---
 
-## Call Chains
+## Local Inference Stack
 
-```
-[Normal Card Creation]
-A0 → A1 → A2 → A4 → A5 → A6 → A9
+DROS runs core logic entirely on-device — no cloud API calls for real-time decisions.
 
-[Self-Correction]
-A5(FAIL) → A7 → A4 → A5(re-validate) → A6
-
-[Backtest Integration]
-A9(card) → A8 → A6(re-score) → A9(final sign)
-
-[Parameter Propagation]
-mode (turbo/steady) : A0 → A2 → A4
-k_floor             : A2 → A4 → A5
-spacing_dec         : A4 → A5 → A7 → A9
-```
+| Component | Technology | Benefit |
+|:---|:---|:---|
+| **ML Inference** | Apple MLX (Metal) | Sub-100ms latency on Apple Silicon |
+| **LLM Layer** | Ollama (local) | Full data privacy, no external dependency |
+| **SharedMemory** | POSIX mmap | Zero-copy inter-process communication |
+| **Hardware** | Apple M4 Pro 24GB | Unified memory — ML + execution in same pool |
 
 ---
 
-## SpacingOracleSSOT
+## Design Principles
 
-Single source of truth for grid spacing. All agents reference one oracle.
-
-```
-Yang-Zhang Volatility (Open-High-Low-Close integrated)
-    ↓
-σ_d estimation → ATR supplement
-    ↓
-SpacingOracleSSOT.compute_spacing()
-    → spacing_dec ≥ k_floor × (fees_dec + slippage_rt_dec)
-    → 10% hysteresis + 30-min cooldown
-```
-
-- ATR-only σ_d estimation forbidden (`INVARIANT-SPACING-04`)
-- Rebuild requires `should_rebuild()` confirmation
+| Principle | Description |
+|:---|:---|
+| **SSOT** | Each parameter computed by exactly one agent — no recomputation |
+| **CardSpec Immutability** | sha256 seal prevents parameter drift after signing |
+| **Staged Deployment** | Shadow → Canary → Production (SPA p < 0.01 gate) |
+| **Advisory-Only LLM** | LLM bias is clamped to ±0.05 — never drives decisions alone |
+| **Open Architecture** | Principles and patterns public; production implementation private |
 
 ---
 
-## EnsembleN* — Dynamic Grid Count
-
-Five factors determine optimal grid count:
-
-| Factor | Effect |
-|--------|--------|
-| Volatility (σ_d) | Higher vol → fewer grids |
-| Capital efficiency | Margin-to-leverage optimization |
-| Fill frequency (EFH) | Charge frequency adjustment |
-| Regime (Macro) | BULL/BEAR/SIDEWAYS tuning |
-| ATR multiplier | Absolute range density |
-
-→ N_total ≥ 10 always enforced (`FAIL_N_BELOW_10`)  
-→ Turbo mode: 10–20 grids · Steady mode: 16–32 grids
-
----
-
-## CardSpec — Immutable Trade Specification
-
-```python
-CardSpec(
-    symbol      = "BTCUSDT",
-    direction   = "long",        # long / short / neutral
-    N_total     = 16,
-    spacing_dec = 0.0025,        # 0.25% — _dec unit only, _pct forbidden
-    leverage    = 5,
-    grid_type   = "geometric",
-    entry_price = 95_000.0,
-    checksum    = sha256(...)    # immutable seal
-)
-```
-
-- Only A7 self-correction may re-sign (sole exception)
-- Violation: `FAIL_CARDSPEC_MUTATION` (P0 immediate halt)
-
----
-
-## Layer6 Components (auto-activated at complexity ≥ 0.5)
-
-| Component | Role |
-|-----------|------|
-| Fibonacci | Golden-ratio task decomposition |
-| PhiContext | File-read golden-ratio optimization |
-| Kelly Risk | Pre-execution risk assessment |
-| LogSimilarity | Historical pattern reuse |
-| MoE Router | Mixture-of-experts routing |
-| ExpLearning | Exponential learning tracker |
-| Consensus | Majority-vote validation |
-| MassGen | Parallel bulk generation |
-
----
-
-*→ See [Agents](./agents.md) · [Safety](./safety.md) · [Execution](./execution.md)*
+→ [Back to README](../README.md) · [Agents reference](./agents.md) · [Safety documentation](./safety.md)
