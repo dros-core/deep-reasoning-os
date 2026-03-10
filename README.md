@@ -10,13 +10,33 @@
 
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue?logo=python&logoColor=white)](https://python.org)
 [![Platform](https://img.shields.io/badge/Exchange-Binance%20Futures-F0B90B?logo=binance&logoColor=white)](https://binance.com)
-[![Hardware](https://img.shields.io/badge/Hardware-Apple%20M4%20Pro-black?logo=apple&logoColor=white)](https://apple.com)
+[![Hardware](https://img.shields.io/badge/Hardware-Apple%20M4%20Pro%2024GB-black?logo=apple&logoColor=white)](./docs/architecture.md)
+[![Inference](https://img.shields.io/badge/Inference-Local%20MLX-blue?logo=apple&logoColor=white)](./docs/architecture.md)
 [![Status](https://img.shields.io/badge/Status-Production-brightgreen)](./docs/performance.md)
 [![License](https://img.shields.io/badge/License-BSL%201.1-orange)](./LICENSE)
 
 [📖 Docs](#-documentation) · [🗺️ Roadmap](./ROADMAP.md) · [📡 Community](#-dros-research-community) · [🏢 Enterprise](#-enterprise--partnerships)
 
 </div>
+
+---
+
+## The Story
+
+Grid trading bots fail for one reason: static parameters in a dynamic market.
+I kept watching positions get liquidated — not from bad strategy, but from
+spacing parameters that couldn't adapt to volatility shifts in real time.
+
+DROS is the system I built to solve that.
+
+Developed solo on an **Apple M4 Pro** (24GB unified memory), using
+**Claude and GPT** as development partners for rapid iteration —
+compressing what would have been years of research into a
+production-grade 16-agent system running 24/7.
+
+Every architecture decision is documented. Every failure is on record.
+
+> *The [MERL liquidation](./docs/case-study-merl/) — a SHORT position hit by a +37% LONG rally — is what built the 7-layer safety gate.*
 
 ---
 
@@ -33,7 +53,28 @@
 
 ---
 
+## Who This Is For
+
+| | |
+|:---|:---|
+| **🔬 Builders & Researchers** | Architecture docs, agent design, academic references, validation methodology |
+| **📡 Traders & System Nerds** | Weekly public-safe research notes, regime observations, system evolution updates |
+| **🏢 Partners & Buyers** | Private architecture briefing, DROS deck, NDA discussion |
+
+---
+
 ## Architecture
+
+```mermaid
+flowchart LR
+    MD[Market Data] --> AG[16 Agents\nA0–A14]
+    AG --> GS{7-Layer\nSafety Gate}
+    GS -->|Pass| EX[Execution\n+ Learning]
+    GS -->|Fail| HL[⛔ Halt]
+```
+
+<details>
+<summary>Expand full pipeline diagram</summary>
 
 ```mermaid
 flowchart TD
@@ -52,6 +93,10 @@ flowchart TD
     EX --> LN[Learning\nAWR + Thompson]
     LN --> A1
 ```
+
+</details>
+
+→ [Full architecture documentation](./docs/architecture.md)
 
 ---
 
@@ -182,7 +227,11 @@ This boundary is intentional. The architecture is transparent; the edge is not.
 
 Market microstructure is asymmetric. Institutional capital exploits patterns that most retail systems cannot detect.
 
-DROS Research Lab shares **public-safe architecture insights, regime change observations, and system design notes** with the community.
+DROS Research Lab shares:
+
+- **Weekly public-safe research notes** — architecture decisions and design patterns
+- **Regime change observations** — market structure shifts as they affect grid systems
+- **System evolution updates** — what changed, what broke, what we learned
 
 > No financial advice. No copied signals. Public-safe engineering notes only.
 
@@ -214,7 +263,7 @@ For exchange partners, institutional desks, and strategic buyers:
 
 | Document | Description |
 |:---|:---|
-| [Architecture](./docs/architecture/) | System design and component overview |
+| [Architecture](./docs/architecture.md) | System design, full pipeline diagram, agent call chain |
 | [Agents](./docs/agents.md) | All 16 agents — roles, contracts, call chains |
 | [Safety](./docs/safety.md) | 7-Layer Entry Gate, invariant contracts, liquidation events |
 | [Learning](./docs/learning.md) | AWR, Thompson Sampling, calibration, BLS |
