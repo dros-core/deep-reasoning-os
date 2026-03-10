@@ -78,6 +78,21 @@ This roadmap reflects the actual development trajectory of DROS. Items marked �
 
 ---
 
+## 🔒 Intentionally Frozen (Stable Contracts)
+
+These design decisions are final. They are not subject to iteration or community vote.
+
+- **SSOT**: one agent computes each parameter, all others consume — no cross-agent recomputation
+- **Deployment gate**: Shadow → Canary → Production (SPA p < 0.01 required)
+- **CardSpec immutability**: no post-sign mutation, ever — FAIL_CARDSPEC_MUTATION is P0 halt
+- **Local-only inference**: no cloud API for core trading decisions — all ML runs on-device
+- **`_dec` units only**: `_pct` is permanently banned — FAIL_UNIT_PCT is P0 halt
+- **Reconciler exemptions**: PLT and AQER-sticky orders are never auto-cancelled by reconciler
+
+These invariants exist because the cost of getting them wrong (liquidation, silent drift, reproducibility loss) exceeds any marginal benefit from flexibility.
+
+---
+
 ## 💡 Research Exploration
 
 > These are active research questions — no implementation commitment yet.
