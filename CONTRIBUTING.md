@@ -44,7 +44,27 @@ If you have a research partnership or licensing discussion in mind, see [Enterpr
 ### For Research References
 1. Open a GitHub Issue with label `research`
 2. Include: paper title, authors, DOI/URL, and why it is relevant to DROS
-3. Relevant papers may be added to the academic references section
+3. Relevant papers may be added to the [academic references](./docs/academic-references.md) document
+
+---
+
+## Listing DROS in Awesome Lists
+
+If you maintain or contribute to a curated list, DROS fits several categories:
+
+| List | Category fit |
+|:-----|:------------|
+| [awesome-quant](https://github.com/wilsonfreitas/awesome-quant) | Production quant system with academic grounding |
+| [awesome-algotrading](https://github.com/urbric/awesome-algo-trading) | Grid trading + ML learning + safety contracts |
+| [awesome-ai-agents](https://github.com/e2b-dev/awesome-ai-agents) | 16-agent cooperative architecture |
+| [best-of-algorithmic-trading](https://github.com/merovinh/best-of-algorithmic-trading) | Auto-tracked by project-quality score |
+
+Suggested listing entry:
+```
+[Deep Reasoning OS (DROS)](https://github.com/dros-core/deep-reasoning-os) —
+Production-grade crypto futures grid trading OS. 16 cooperative agents,
+7-layer safety contracts, continuous AI evolution via MAP-Elites.
+```
 
 ---
 
