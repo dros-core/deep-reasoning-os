@@ -23,20 +23,14 @@
 
 ## The Story
 
-Grid trading bots fail for one reason: static parameters in a dynamic market.
-I kept watching positions get liquidated — not from bad strategy, but from
-spacing parameters that couldn't adapt to volatility shifts in real time.
+Static grid bots fail in dynamic markets — spacing tuned for calm conditions
+blows up when volatility spikes. I kept watching positions get liquidated not
+from bad strategy, but from parameters that couldn't adapt in real time.
 
-DROS is the system I built to solve that.
-
-Developed solo on an **Apple M4 Pro** (24GB unified memory), using
-**Claude and GPT** as development partners for rapid iteration —
-compressing what would have been years of research into a
-production-grade 16-agent system running 24/7.
-
-Every architecture decision is documented. Every failure is on record.
-
-> *The [MERL liquidation](./docs/case-study-merl/) — a SHORT position hit by a +37% LONG rally — is what built the 7-layer safety gate.*
+DROS is what I built to fix that. Developed solo on an **Apple M4 Pro**
+(24GB unified memory) with **Claude and GPT** as development partners.
+Every failure is documented: the [MERL liquidation](./docs/case-study-merl.md)
+— a SHORT hit by a +37% LONG rally — is exactly what built the 7-layer safety gate.
 
 ---
 
@@ -55,48 +49,31 @@ Every architecture decision is documented. Every failure is on record.
 
 ## Who This Is For
 
-| | |
-|:---|:---|
-| **🔬 Builders & Researchers** | Architecture docs, agent design, academic references, validation methodology |
-| **📡 Traders & System Nerds** | Weekly public-safe research notes, regime observations, system evolution updates |
-| **🏢 Partners & Buyers** | Private architecture briefing, DROS deck, NDA discussion |
+- **🔬 Builders & Researchers**
+  Architecture docs, agent design, academic references, validation methodology
+
+- **📡 Traders & System Nerds**
+  Weekly public-safe research notes, regime observations, system evolution updates
+
+- **🏢 Partners & Buyers**
+  Private architecture briefing, DROS deck, NDA discussion
 
 ---
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    MD[Market Data] --> AG[16 Agents\nA0–A14]
-    AG --> GS{7-Layer\nSafety Gate}
-    GS -->|Pass| EX[Execution\n+ Learning]
-    GS -->|Fail| HL[⛔ Halt]
-```
+| Stage | Components | Output |
+|:------|:-----------|:-------|
+| **Data** | A1 · Yang-Zhang σ, ATR, funding rate | Volatility signal |
+| **Reasoning** | A2 · XGBoost + LightGBM + LLM bias | Market direction |
+| **Safety** | A3 · 7-Layer Entry Gate | Pass / ⛔ Halt |
+| **Candidate** | A4 · EnsembleN* + SpacingOracleSSOT | CardSpec draft |
+| **Validate** | A5 · fee-floor · A6 · top-K · A8 · CPCV+PBO | Verified card |
+| **Sign** | A9 · sha256 seal — immutable after this point | Signed CardSpec |
+| **Execute** | A10–A14 · Reconciler + PLT + AQER | Live orders |
+| **Learn** | AWR (per heartbeat) + Thompson Sampling (~30 min) | Parameter update |
 
-<details>
-<summary>Expand full pipeline diagram</summary>
-
-```mermaid
-flowchart TD
-    MD[Market Data\nWebSocket + REST] --> A1[A1 · Volatility\nYang-Zhang σ]
-    A1 --> A2[A2 · Reasoning\nEnsemble ML + LLM]
-    A2 --> A3{A3 · Safety\n7-Layer Gate}
-    A3 -->|Pass| A4[A4 · Candidate Gen\nEnsembleN* + SpacingOracle]
-    A3 -->|Fail| HALT[⛔ Halt]
-    A4 --> A5{A5 · Cost Validator\nfee-floor check}
-    A5 -->|Fail| A7[A7 · Self-Corrector\nrepair + retry]
-    A7 --> A4
-    A5 -->|Pass| A6[A6 · Scorer\ntop-K selection]
-    A6 --> A8[A8 · Backtest\nCPCV + PBO]
-    A8 --> A9[A9 · CardSpec Signer\nsha256 seal]
-    A9 --> EX[Execution\nReconciler + PLT]
-    EX --> LN[Learning\nAWR + Thompson]
-    LN --> A1
-```
-
-</details>
-
-→ [Full architecture documentation](./docs/architecture.md)
+→ [Full pipeline diagram and agent call chain](./docs/architecture.md)
 
 ---
 
@@ -145,24 +122,6 @@ Every trade passes all seven layers sequentially. One failure halts the pipeline
 </details>
 
 <details>
-<summary><strong>🔬 AI Evolution Lab v3</strong></summary>
-
-Thirteen modules applying the Strangler Fig pattern — new strategies run in shadow before touching capital.
-
-- **Alpha Foundry**: MAP-Elites genome search over grid parameter space
-- **OODA Loop**: Boyd's Observe-Orient-Decide-Act, offline only (03:00–09:00 KST)
-- **Digital Twin**: Mirror engine tracking live/shadow parity
-- **Counterfactual Lab**: Off-policy evaluation of untested strategies
-- **Black Swan Ensemble**: 2-of-4 detector vote (ADWIN, CUSUM, BOCPD, Hawkes)
-- **ACI Risk Controller**: Adaptive conformal inference for dynamic risk bounds
-
-Graduation path: Shadow (7 days min) → Canary (10%) → Production (SPA p < 0.01)
-
-→ [Evolution Lab documentation](./docs/evolution-lab/)
-
-</details>
-
-<details>
 <summary><strong>📚 Dual Online Learning</strong></summary>
 
 Two independent learning loops run continuously without stopping execution.
@@ -179,22 +138,36 @@ Additional layers: Bayesian Learning Subprocess (memory-isolated), CPCV + PBO ov
 </details>
 
 <details>
-<summary><strong>🔒 CardSpec Immutability</strong></summary>
+<summary><strong>⚙️ Advanced Technical Pillars</strong> — CardSpec Immutability · AI Evolution Lab v3 · Open Architecture</summary>
+
+### 🔬 AI Evolution Lab v3
+
+Thirteen modules applying the Strangler Fig pattern — new strategies run in shadow before touching capital.
+
+- **Alpha Foundry**: MAP-Elites genome search over grid parameter space
+- **OODA Loop**: Boyd's Observe-Orient-Decide-Act, offline only (03:00–09:00 KST)
+- **Digital Twin**: Mirror engine tracking live/shadow parity
+- **Counterfactual Lab**: Off-policy evaluation of untested strategies
+- **Black Swan Ensemble**: 2-of-4 detector vote (ADWIN, CUSUM, BOCPD, Hawkes)
+- **ACI Risk Controller**: Adaptive conformal inference for dynamic risk bounds
+
+Graduation path: Shadow (7 days min) → Canary (10%) → Production (SPA p < 0.01)
+
+→ [Evolution Lab documentation](./docs/evolution-lab.md)
+
+### 🔒 CardSpec Immutability
 
 Every trade is governed by a **CardSpec** — a cryptographically sealed parameter set.
 
 - Generated by A4 (SpacingOracleSSOT, EnsembleN*)
 - Validated by A5 (fee-floor), A8 (backtest), A6 (scoring)
 - Sealed by A9 with sha256(code + contracts + cardspec)
-- **Immutable after signing** — any mutation triggers `FAIL_CARDSPEC_MUTATION` (P0 halt)
+- **Immutable after signing** — any mutation triggers  (P0 halt)
 - A7 is the only agent permitted to re-sign (self-correction path only)
 
 No parameter drift. No silent overrides. What was validated is what gets executed.
 
-</details>
-
-<details>
-<summary><strong>📐 Open Architecture, Closed Execution</strong></summary>
+### 📐 Open Architecture, Closed Execution
 
 DROS separates what is public from what is private by design.
 
@@ -204,7 +177,7 @@ DROS separates what is public from what is private by design.
 
 This boundary is intentional. The architecture is transparent; the edge is not.
 
-→ [Open Architecture documentation](./docs/open-architecture/)
+→ [Open Architecture documentation](./docs/open-architecture.md)
 
 </details>
 
@@ -268,12 +241,13 @@ For exchange partners, institutional desks, and strategic buyers:
 | [Safety](./docs/safety.md) | 7-Layer Entry Gate, invariant contracts, liquidation events |
 | [Learning](./docs/learning.md) | AWR, Thompson Sampling, calibration, BLS |
 | [Execution](./docs/execution.md) | Reconciler, AQER, AOSM, PLT, hot-reload |
-| [Evolution Lab](./docs/evolution-lab/) | AI Evolution Lab v3, 13 modules |
+| [Evolution Lab](./docs/evolution-lab.md) | AI Evolution Lab v3, 13 modules |
 | [Performance](./docs/performance.md) | Operational characteristics and KPI targets |
-| [Open Architecture](./docs/open-architecture/) | Public/private boundary explanation |
-| [MERL Case Study](./docs/case-study-merl/) | Liquidation event post-mortem |
+| [Open Architecture](./docs/open-architecture.md) | Public/private boundary explanation |
+| [MERL Case Study](./docs/case-study-merl.md) | Liquidation event post-mortem |
+| [Academic References](./docs/academic-references.md) | Research grounding for DROS design decisions |
 | [FAQ](./docs/faq.md) | Common questions |
-| [Validation](./docs/validation/) | Testing and contract enforcement |
+| [Validation](./docs/validation.md) | Testing and contract enforcement |
 | [Roadmap](./ROADMAP.md) | Planned development |
 
 ---
@@ -287,5 +261,7 @@ DROS is a research and engineering project. Nothing in this repository constitut
 <div align="center">
 
 *Built with deterministic rigor. Deployed with staged caution.*
+
+**If DROS saves you research time — [⭐ star the repo](https://github.com/dros-core/deep-reasoning-os)**
 
 </div>
