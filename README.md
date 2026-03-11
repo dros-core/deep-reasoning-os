@@ -210,9 +210,9 @@ DROS Research Lab shares:
 
 > No financial advice. No copied signals. Public-safe engineering notes only.
 
-[![Telegram](https://img.shields.io/badge/Telegram-DROS%20Research%20Lab-26A5E4?logo=telegram&logoColor=white)](https://t.me/deepreasoningos)
+[![Telegram](https://img.shields.io/badge/Telegram-DROS%20Research%20Lab-26A5E4?logo=telegram&logoColor=white)](https://t.me/dros_quant_lab)
 
-**[→ Join DROS Research Lab](https://t.me/deepreasoningos)**
+**[→ Join DROS Research Lab](https://t.me/dros_quant_lab)**
 
 ---
 
@@ -227,8 +227,8 @@ For exchange partners, institutional desks, and strategic buyers:
 - Institutional deployment consulting
 - Acquisition discussions
 
-📩 **[enterprise@deepreasoningos.com](mailto:enterprise@deepreasoningos.com)**
-📋 **[Request the DROS deck](mailto:enterprise@deepreasoningos.com?subject=DROS%20Deck%20Request)**
+📩 **[dros.quant.lab@gmail.com](mailto:dros.quant.lab@gmail.com)**
+📋 **[Request the DROS deck](mailto:dros.quant.lab@gmail.com?subject=DROS%20Deck%20Request)**
 
 *We do not use GitHub Issues for enterprise inquiries.*
 
