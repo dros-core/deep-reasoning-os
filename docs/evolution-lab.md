@@ -1,183 +1,231 @@
-# Leviathan v4.0 — AI Evolution Lab
+# 🔬 Evolution Lab — Deep Reasoning OS (DROS)
 
-Formerly "AI Evolution Lab v3." Renamed to Leviathan v4.0 to reflect its matured 5-Brain Architecture and dual-ring production/shadow structure.
-
----
-
-## Architecture: 5-Brain System
-
-Leviathan operates through five specialized neural subsystems, each responsible for a distinct cognitive function:
-
-| Brain | Function | Key Components |
-|-------|----------|---------------|
-| Perception | Market state classification | PSI, FGI, regime detector, symbol sentiment 5-axis |
-| Forecast | Directional probability | Direction engine, Thompson prior, calibration |
-| Microstructure | Order flow analysis | VPIN, toxicity detection, fill rate monitoring |
-| Risk | Position sizing and safety | Tail risk, Dynamic SL, liq_buffer floor |
-| Execution | Order management | Grid engine, PLT, Position State Machine |
+> AI Evolution Lab v3 — 13-module self-evolution system
 
 ---
 
-## Dual-Ring Architecture
+## Overview
 
-### Ring 1: Production
-Strategies that have completed the full graduation pipeline. Operate on live capital with full enforcement of all invariants and fail codes.
+The AI Evolution Lab is DROS's controlled strategy evolution framework.  
+New strategies are never deployed directly to production.  
+Every idea must survive a **4-layer scientific validation pipeline** before going live.
 
-### Ring 2: Shadow
-All new strategies and features start here. Shadow mode means:
-- No capital at risk
-- Would-have logs only
-- Full metric tracking (EPE, FRE, LPE parity with production)
-- Cannot be promoted without SPA gate
+> *"Shadow first. Always."*
 
-**Promotion path**: Shadow -> SPA (p<0.01) -> Canary -> Production
-
-Minimum requirements for promotion:
-- 100+ events
-- 7 days shadow duration
-- EPE < 5% divergence from Digital Twin
-- ROI improvement vs baseline
-- SPA sequential test: p < 0.01
+**Implementation completed:** 2026-03-09  
+**Active modules:** 7 Production · 6 Shadow  
+**Architecture pattern:** EnhancerBus (Strangler Fig)
 
 ---
 
-## PNL Efficiency Engine (8-Phase)
+## 7-Kernel Orchestra
 
-The PNL Efficiency Engine evaluates strategy quality through eight sequential phases before any capital allocation:
-
-1. **Signal Quality** - Directional accuracy, calibration score
-2. **Execution Quality** - Fill rate, slippage vs model
-3. **Regime Fit** - Performance per regime (ranging/trending/volatile)
-4. **Cost Gate** - Gross ROI vs fee + slippage (>=90% pass rate)
-5. **Tail Risk** - Max drawdown, tail_risk score
-6. **Lead Time** - Signal-to-execution latency
-7. **Stability** - Cross-validation stability (CPCV + PBO < 0.3)
-8. **Net ROI** - Post-all-cost expected return (must be positive)
-
----
-
-## AlphaFoundry QD MAP-Elites
-
-Quality-Diversity optimization using pyribs MAP-Elites for genome evolution:
-
-- **Genome**: Grid parameters (spacing, N_total, leverage, regime weights)
-- **Quality**: Net ROI after CPCV+PBO validation
-- **Diversity**: Coverage across regime x symbol_tier grid
-- **Mutation**: Adaptive rate (adjusts on plateau, INVARIANT-EVOL-07)
-- **Clock**: AlphaFoundryClock 72h control cycle (INVARIANT-EVOL-19)
-
-Direct `qd_optimizer.optimize()` calls are banned. Must route through `AlphaFoundryClock.run()`.
+| Kernel | Role | Key Module |
+|--------|------|-----------|
+| **Perception** | Market state detection | `entropy_regime.py` · `ising_phase.py` |
+| **Forecast** | Direction prediction | `mlx_direction_predictor.py` (Apple MLX) |
+| **Microstructure** | Liquidity sensing | `cfc_sensor.py` (MIT CfC neural network) |
+| **Risk** | Black Swan detection | `black_swan_ensemble.py` (2/4 vote) |
+| **Execution** | Optimal execution | `mcts_engine.py` · `inverse_reasoning.py` |
+| **Research** | Hypothesis testing | `popper_engine.py` (E-value based) |
+| **Evolution** | Strategy evolution | `qd_optimizer.py` (pyribs MAP-Elites) |
 
 ---
 
-## OODA Loop (Offline Strategy Improvement)
+## EnhancerBus — Plugin Architecture
 
-Boyd OODA loop runs in the offline window (03:00-09:00 KST) only.
+```
+Location: services/evolution/enhancer_bus.py
+Pattern:  Strangler Fig (gradual replacement of existing logic)
 
-| Phase | Timing | Action |
-|-------|--------|--------|
-| Observe | Continuous | Data collection, event logging |
-| Orient | Offline | Regime drift detection (on_regime_drift()) |
-| Decide | Offline only | Strategy selection (decide_and_act()) |
-| Act | Offline only | Parameter update, shadow registration |
+Rule:     DecisionPacket main fields → READ-ONLY
+          Only extra_context may be written
+          Violation → FAIL_EVOL_BUS_WRITE_VIOLATION
 
-**INVARIANT-EVOL-12**: Decide/Act phases offline-only. Live execution during market hours is forbidden (FAIL_EVOL_OODA_LIVE_DECIDE).
+Optimization: _sorted_cache for 8-enhancer priority ordering
+              Invalidated on register() / unregister()
+```
 
-**INVARIANT-EVOL-18**: `on_regime_drift()` sets flag only. Execution deferred to decide_and_act() offline window.
-
----
-
-## Black Swan Ensemble
-
-Four independent detectors, 2/4 vote required (INVARIANT-EVOL-08):
-
-1. **ADWIN** - Adaptive Windowing change detection
-2. **CUSUM** - Cumulative sum control chart
-3. **BOCPD** - Bayesian Online Changepoint Detection
-4. **Hawkes** - Hawkes process event clustering
-
-Single detector firing is insufficient. Reduces false positive rate significantly.
-
-Feature flag: `USE_EVOL_BLACK_SWAN` (currently shadow)
+All 13 evolution modules plug into the EnhancerBus without modifying core decision logic.
 
 ---
 
-## Evidence-Based Graduation Gate v3
+## 4-Layer Validation Pipeline
 
-Three sequential evidence requirements before production graduation:
+Every new strategy must pass all 4 layers before production:
 
-1. **ESS (Effective Sample Size)**: AR(1) autocorrelation-adjusted. Prevents pseudoreplication from correlated market events.
+```
+Layer 1: Research Lab
+  POPPER E-value hypothesis testing
+  E-value ≥ 1/α → reject hypothesis
+  Pre-registration required — post-hoc hypotheses forbidden
+  → FAIL_EVOL_POST_HOC_HYPOTHESIS
 
-2. **Coverage**: Strategy must perform across regime diversity grid. Cannot graduate on single-regime performance.
+Layer 2: Counterfactual Lab
+  OPE Capped SNIPS (cap=10.0)
+  Bootstrap CI with n ≥ 1,000 samples required
+  → FAIL_EVOL_OPE_NO_CI
 
-3. **Truncated mSPRT**: Sequential probability ratio test with truncation. Maintains type-I error control under optional stopping.
+Layer 3: Digital Twin
+  MirrorEngine computes EPE / FRE / LPE simultaneously
+  All 3 parity metrics must be < 5%
+  → FAIL_EVOL_PARITY_INCOMPLETE
 
-Only when all three pass with p < 0.01 does the SPA gate open for canary deployment.
-
----
-
-## MLX GPU Subsystem
-
-Apple Silicon Metal GPU integration for indicator computation:
-
-- **Isolation**: MLX runs in subprocess (spawn context only, fork banned: FAIL_EVOL_FORK_MLX)
-- **Lock**: mx.eval() calls require _gpu_lock ownership (INVARIANT-EVOL-20)
-- **Warmup**: Deferred to asyncio background task after daemon init (prevents import-lock deadlock)
-- **Fitness proxy**: MLX batch evaluation for genome fitness in AlphaFoundry (shadow)
-
-Feature flag: `USE_EVOL_MLX_SUBPROCESS` (active), `USE_EVOL_MLX_FITNESS_PROXY` (shadow)
-
----
-
-## Digital Twin Parity
-
-The Digital Twin mirrors production execution for shadow validation:
-
-| Metric | Description | Threshold |
-|--------|-------------|-----------|
-| EPE | Execution Parity Error | < 5% |
-| FRE | Fill Rate Error | < 10% |
-| LPE | Latency Parity Error | < 20% |
-
-Shadow strategies failing parity thresholds cannot graduate regardless of ROI performance.
+Layer 4: Shadow → Canary → Production
+  Minimum 7 days shadow
+  SPA test p < 0.01 required for promotion
+  Minimum 100 events before graduation
+  10% Canary traffic before 100% production
+```
 
 ---
 
-## Feature Flags
+## Active Modules
 
-All Leviathan features default to 0 (off). Enable via environment variable or feature_flags.json:
+### Production (Live)
 
-| Flag | Description | Status |
-|------|-------------|--------|
-| USE_EVOL_BLACK_SWAN | 4-detector anomaly ensemble | shadow |
-| USE_EVOL_ALPHA_FOUNDRY | QD MAP-Elites genome evolution | shadow |
-| USE_EVOL_OODA_LOOP | Boyd OODA offline loop | shadow |
-| USE_EVOL_EVIDENCE_GRADUATION | ESS+coverage+mSPRT gate | active |
-| USE_EVOL_MLX_SUBPROCESS | MLX Metal GPU isolation | active |
-| USE_EVOL_MLX_FITNESS_PROXY | GPU-accelerated fitness evaluation | shadow |
-| USE_EVOL_MCTS_REASONING | Monte Carlo Tree Search grid optimizer | shadow |
-| USE_EVOL_DIGITAL_TWIN | Mirror Engine parity tracking | shadow |
-| USE_EVOL_COUNTERFACTUAL_LAB | OPE policy evaluation | shadow |
-| USE_EVOL_ENTROPY_REGIME | Kozachenko-Leonenko entropy detector | shadow |
+| Module | Technology | Role |
+|--------|-----------|------|
+| **ACI Risk** | Adaptive Conformal Inference | Risk boundary calibration |
+| **EventStore** | SQLite WAL append-only | Immutable event log |
+| **Digital Twin** | MirrorEngine EPE/FRE/LPE | Shadow-production parity |
+| **Counterfactual Lab** | OPE Capped SNIPS | Policy evaluation |
+| **Black Swan** | ADWIN+CUSUM+BOCPD+Hawkes | 2/4 vote ensemble detection |
+| **Alpha Foundry** | pyribs MAP-Elites | Genome quality-diversity evolution |
+| **OODA Loop** | Boyd OODA cycle | Offline strategy adaptation |
 
----
+### Shadow (Validation in progress)
 
-## Invariants (Critical)
-
-| Code | Rule |
-|------|------|
-| INVARIANT-EVOL-01 | EnhancerBus writes to DecisionPacket.extra_context only (read-only main fields) |
-| INVARIANT-EVOL-02 | Hypotheses registered before testing, not after (FAIL_EVOL_POST_HOC_HYPOTHESIS) |
-| INVARIANT-EVOL-03 | Evolved strategies start at deployment_stage="shadow" (FAIL_EVOL_DIRECT_DEPLOY) |
-| INVARIANT-EVOL-07 | Mutation rate adapts on plateau, never hardcoded (FAIL_EVOL_FIXED_MUTATION) |
-| INVARIANT-EVOL-08 | Black Swan ensemble requires 2/4 vote (FAIL_EVOL_SINGLE_DETECTOR) |
-| INVARIANT-EVOL-12 | OODA Decide/Act offline-only (FAIL_EVOL_OODA_LIVE_DECIDE) |
-| INVARIANT-EVOL-16 | EventStore append-only, prune() is only deletion (FAIL_EVOL_EVENT_MUTATION) |
-| INVARIANT-EVOL-19 | Graduation budget via required_budget() only (FAIL_EVOL_HARDCODED_GRAD_PARAMS) |
-| INVARIANT-EVOL-20 | mx.eval() requires _gpu_lock (FAIL_EVOL_MLX_NO_LOCK) |
-| INVARIANT-EVOL-21 | sequential_evidence_score is pre-filter only; final graduation via SPA (FAIL_EVOL_SEQUENTIAL_BYPASS_SPA) |
-| INVARIANT-EVOL-22 | MLX subprocess uses spawn context; fork() banned (FAIL_EVOL_FORK_MLX) |
+| Module | Technology | Role |
+|--------|-----------|------|
+| **Entropy Regime** | Kozachenko-Leonenko estimator | Market entropy regime detection |
+| **Ising Phase** | Ising magnetization model | Phase transition detection |
+| **CfC Sensor** | MIT Closed-form Continuous-time NN | Microstructure anomaly detection |
+| **MCTS Reasoning** | UCB1 + OU-process rollout | Grid parameter optimization |
+| **ACO Selector** | Ant Colony pheromone | Symbol ranking |
+| **Lotka-Volterra** | Prey-predator dynamics | Regime detection |
 
 ---
 
-*Leviathan v4.0 | DROS v12.4b | 2026-03-14*
+## Alpha Foundry — MAP-Elites Genome Evolution
+
+```python
+# Strategy genome: grid parameters as evolvable chromosome
+genome = StrategyGenome(
+    spacing_dec  = 0.0025,
+    N_total      = 16,
+    leverage     = 5,
+    grid_type    = "geometric",
+    direction    = "long"
+)
+
+# Quality-Diversity optimization via pyribs
+# Explores diverse high-performing strategies
+# Memory leak prevention: gc.collect() per iteration (INVARIANT-EVOL-09)
+# Mutation rate: plateau-adaptive, never hardcoded (INVARIANT-EVOL-07)
+```
+
+---
+
+## OODA Loop — Offline Strategy Adaptation
+
+Boyd's OODA cycle applied to strategy evolution:
+
+```
+Observe  → Collect market intelligence (async, all times)
+Orient   → Regime classification + pattern recognition
+Decide   → Strategy selection (OFFLINE ONLY: 03:00–09:00 KST)
+Act      → Deploy to shadow for validation (OFFLINE ONLY)
+
+INVARIANT-EVOL-12:
+  Decide and Act phases: 03:00–09:00 KST only
+  Live-hours execution → FAIL_EVOL_OODA_LIVE_DECIDE
+```
+
+---
+
+## Black Swan Ensemble — 2/4 Vote
+
+Four independent detectors must reach 2/4 consensus before a black swan alert:
+
+| Detector | Method |
+|----------|--------|
+| ADWIN | Adaptive Windowing (distribution shift) |
+| CUSUM | Cumulative Sum (sequential change detection) |
+| BOCPD | Bayesian Online Changepoint Detection |
+| Hawkes | Self-exciting point process (event clustering) |
+
+```
+Single detector alert → ignored
+2/4 vote → BLACK_SWAN event registered
+3/4 vote → elevated alert
+4/4 vote → maximum response
+
+INVARIANT-EVOL-08: Single detector sufficient → FAIL_EVOL_SINGLE_DETECTOR
+```
+
+---
+
+## EventStore — Immutable Event Log
+
+```
+Implementation: SQLite WAL mode
+Rule:           Append-only — no updates, no deletes
+                Only prune() may remove old records
+                Violation → FAIL_EVOL_EVENT_MUTATION (P0)
+
+INVARIANT-EVOL-05: WAL mode required → FAIL_EVOL_NO_WAL
+```
+
+---
+
+## Complete INVARIANT Reference
+
+| INVARIANT | Rule | Fail Code |
+|-----------|------|-----------|
+| EVOL-01 | EnhancerBus: extra_context write only | `FAIL_EVOL_BUS_WRITE_VIOLATION` |
+| EVOL-02 | Hypothesis pre-registration required | `FAIL_EVOL_POST_HOC_HYPOTHESIS` |
+| EVOL-03 | Evolved strategies start in shadow | `FAIL_EVOL_DIRECT_DEPLOY` |
+| EVOL-04 | ACI gamma ∈ (0, 0.1] | `FAIL_EVOL_ACI_GAMMA_RANGE` |
+| EVOL-05 | EventStore: WAL mode required | `FAIL_EVOL_NO_WAL` |
+| EVOL-06 | Digital Twin: EPE/FRE/LPE simultaneous | `FAIL_EVOL_PARITY_INCOMPLETE` |
+| EVOL-07 | Mutation rate: plateau-adaptive only | `FAIL_EVOL_FIXED_MUTATION` |
+| EVOL-08 | Black Swan: 2/4 vote required | `FAIL_EVOL_SINGLE_DETECTOR` |
+| EVOL-09 | Alpha Foundry: gc.collect() per iter | `FAIL_EVOL_MEMORY_LEAK` |
+| EVOL-10 | POPPER: E-value ≥ 1/α → reject | `FAIL_EVOL_EVALUE_THRESHOLD` |
+| EVOL-11 | CfC: Z-score normalization required | `FAIL_EVOL_CFC_NO_NORM` |
+| EVOL-12 | OODA Decide/Act: 03:00–09:00 KST only | `FAIL_EVOL_OODA_LIVE_DECIDE` |
+| EVOL-14 | OPE: Bootstrap CI n ≥ 1,000 | `FAIL_EVOL_OPE_NO_CI` |
+| EVOL-15 | MCTS: UCB1 + OU-process rollout | `FAIL_EVOL_MCTS_INVALID_ROLLOUT` |
+| EVOL-16 | EventStore: append-only, prune only | `FAIL_EVOL_EVENT_MUTATION` |
+
+---
+
+## Graduation Gate — Shadow to Production
+
+```
+Minimum requirements for production promotion:
+
+  ✓ 100+ events recorded in shadow
+  ✓ 7+ days shadow runtime
+  ✓ EPE < 5% (execution parity error)
+  ✓ SPA test p < 0.01
+  ✓ ROI improvement vs baseline
+  ✓ 10% Canary validation passed
+```
+
+---
+
+## Academic Foundation
+
+| Paper | Application |
+|-------|------------|
+| Grünwald et al. — *E-values* (2023) | POPPER hypothesis testing |
+| Adams & MacKay — *BOCPD* (2007) | Black Swan ensemble |
+| Mouret & Clune — *MAP-Elites* (2015) | Alpha Foundry |
+| Hasani et al. — *CfC Networks* (2022) | Microstructure sensor |
+| Rackauckas et al. — *Universal DEs* (2020) | Dynamics modeling |
+
+---
+
+*→ See [Architecture](./architecture.md) · [Learning](./learning.md) · [Safety](./safety.md)*
