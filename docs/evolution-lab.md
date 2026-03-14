@@ -1,6 +1,6 @@
-# 🔬 Evolution Lab — Deep Reasoning OS (DROS)
+# 🔬 Leviathan v4.0 — AI Evolution Lab
 
-> AI Evolution Lab v3 — 13-module self-evolution system
+> Leviathan v4.0 (formerly AI Evolution Lab v3) — 5-Brain self-evolution architecture
 
 ---
 
@@ -18,7 +18,27 @@ Every idea must survive a **4-layer scientific validation pipeline** before goin
 
 ---
 
-## 7-Kernel Orchestra
+## 5-Brain Architecture
+
+Five cognitive brains coordinate through the EnhancerBus — new strategies run in shadow before touching capital.
+
+| Brain | Role |
+|-------|------|
+| **Perception** | Market state classification (regime, volatility, order flow) |
+| **Forecast** | Directional probability (p_dir ensemble) |
+| **Microstructure** | Execution quality sensing (VPIN, fill rate) |
+| **Risk** | Exposure management (tail risk, drawdown) |
+| **Execution** | Order decision (grid parameters, SL/TP) |
+
+**Dual-Ring Deployment**:
+- Ring 1 (Production): SPA-graduated strategies only
+- Ring 2 (Shadow): would-have logging, no capital impact
+
+Graduation path: Shadow (minimum observation window) → Canary → Production (statistical gate)
+
+---
+
+## Kernel Modules
 
 | Kernel | Role | Key Module |
 |--------|------|-----------|
@@ -198,6 +218,12 @@ INVARIANT-EVOL-05: WAL mode required → FAIL_EVOL_NO_WAL
 | EVOL-14 | OPE: Bootstrap CI n ≥ 1,000 | `FAIL_EVOL_OPE_NO_CI` |
 | EVOL-15 | MCTS: UCB1 + OU-process rollout | `FAIL_EVOL_MCTS_INVALID_ROLLOUT` |
 | EVOL-16 | EventStore: append-only, prune only | `FAIL_EVOL_EVENT_MUTATION` |
+| EVOL-17 | Graduation budget via required_budget() only | `FAIL_EVOL_HARDCODED_GRAD_PARAMS` |
+| EVOL-18 | on_regime_drift() sets flag only; execution in offline window | `FAIL_EVOL_OODA_LIVE_DECIDE` |
+| EVOL-19 | qd_optimizer.optimize() via AlphaFoundryClock.run() only | `FAIL_EVOL_CLOCK_BYPASS` |
+| EVOL-20 | mx.eval() requires _gpu_lock | `FAIL_EVOL_MLX_NO_LOCK` |
+| EVOL-21 | sequential_evidence_score = pre-filter only, SPA required for graduation | `FAIL_EVOL_SEQUENTIAL_BYPASS_SPA` |
+| EVOL-22 | MLX subprocess spawn context only, fork() banned | `FAIL_EVOL_FORK_MLX` |
 
 ---
 
