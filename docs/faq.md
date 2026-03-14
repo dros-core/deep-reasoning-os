@@ -52,7 +52,7 @@ DROS documents liquidation events publicly — not to claim they are rare, but t
 
 **Q: How does DROS prevent the same liquidation from happening again?**
 
-The 7-Layer Entry Gate now includes macro sentiment veto, tail risk assessment, direction uncertainty blocking, VPIN toxicity detection, liquidation probability validation, and card freshness enforcement. Any single gate failure halts the pipeline.
+The 8-Layer Safety Gate now includes macro sentiment veto, tail risk assessment, direction uncertainty blocking, VPIN toxicity detection, liquidation probability validation, and card freshness enforcement. Any single gate failure halts the pipeline.
 
 Additionally, the AI Evolution Lab runs new strategies in shadow mode for a minimum of 7 days before any capital is allocated.
 
@@ -87,6 +87,14 @@ Thompson Sampling is a Bayesian bandit algorithm that selects which preset confi
 **Q: What is the Shadow → Canary → Production pipeline?**
 
 All new strategies and features begin in shadow mode: full validation runs, but no capital is committed. After a minimum 7-day shadow period and a statistical significance test (SPA, p < 0.01), a strategy is promoted to canary (10% of capital). Full production allocation follows after further validation.
+
+**What happens when a WATCH signal expires without confirmation?**
+
+EXPIRED results are always published. They are never suppressed. This follows the Numerai transparency model — confirmation rate is only meaningful when all outcomes (confirmed and expired) are reported on the same ledger (INVARIANT-MKT-29).
+
+**What is the Research Product Layer?**
+
+Observations are registered before outcomes (SYMBOL_WATCH), scored after (SYMBOL_CONFIRMED / SYMBOL_WATCH_EXPIRED), and published regardless of direction. This follows the Registered Reports model from academic research: method fixed before results, outcomes disclosed on same ledger.
 
 ---
 
