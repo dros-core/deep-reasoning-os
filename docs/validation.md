@@ -1,187 +1,156 @@
-# Validation and Testing
+# 🔬 Validation Standards
 
-DROS maintains 500+ tests covering contract enforcement, integration pipelines, and property-based invariant checking.
-
----
-
-## Test Infrastructure
-
-### Test Runner
-
-All tests run via `dros-test-runner` agent (haiku model, background):
-
-**Trigger conditions**:
-- Any modification to execution/, contracts/, services/, or utils/
-- After bug fixes or new feature implementations
-- After any agent pipeline change
-
-**Output**: Failures only (500+ tests, pass cases suppressed for readability)
+> DROS applies academic-grade validation at every stage — from strategy development through production deployment.
 
 ---
 
-## Test Categories
+## Core Principle
 
-### Contract Tests (Unit Level)
+> **"A strategy that cannot be validated is a strategy that cannot be trusted."**
 
-Each fail code has a dedicated unit test. Example structure:
+DROS validation pipeline is designed to catch overfitting, data leakage, distributional shift,
+and regime mismatch before any strategy reaches production capital.
+
+---
+
+## Backtesting Standard — CPCV + PBO
+
+Standard backtesting suffers from a fundamental problem: strategies can be optimized to look good on historical data without any genuine predictive power. DROS addresses this with two controls.
+
+### Combinatorial Purged Cross-Validation (CPCV)
+
+Based on López de Prado (2018, 2020).
 
 ```
-test_FAIL_UNIT_PCT         -- _pct unit blocked
-test_FAIL_CARDSPEC_MUTATION -- signed card immutable
-test_FAIL_SL_DISABLED      -- SL fully-off blocked
-test_FAIL_LIVECHECKAND     -- AND condition blocked in LiveCheck
-test_FAIL_ORPHAN_FORCED    -- forced liquidation blocked
+n_splits   = 5
+purge_gap  = 24 hours   (prevents information leakage between train/test)
+embargo_pct = 1%        (additional safety margin after purge)
 ```
 
-Contract tests verify that invariant violations halt execution and log structured output. They do not test business logic -- only enforcement.
+The purge gap is critical: in financial time series, adjacent observations are correlated.
+Without purging, information leaks from training into test sets — producing artificially optimistic results.
 
-### Integration Tests (Pipeline Level)
-
-End-to-end pipeline tests that simulate full A0-A15 execution:
-
-- **Single symbol entry**: BTCUSDT turbo mode, validates card_created flag
-- **8-gate validation**: Each gate independently vetoed, verifies block
-- **SL trigger**: Stack A fires at catastrophe threshold
-- **PLT coordination**: PLT orders placed and cancelled on position close
-- **ORPHAN detection**: Non-card position classified correctly
-- **Reconciler cycle**: Drift detection and resolution
-
-### Property-Based Tests (Hypothesis)
-
-Hypothesis library tests for invariant properties:
-
-- spacing_dec always >= k_floor x (fees_dec + slippage_dec)
-- N_total always >= 10
-- p_dir always in [0, 1] after calibration
-- net_roi always uses _dec unit
-- All PLT orders have reduce_only=True
-- quality_base_no_llm always <= quality_final
-
-Property tests use example databases in .hypothesis/constants/ for reproducible shrinking.
-
-### Learning Pipeline Tests
-
-- CPCV purge gap verification (>= 24h enforced)
-- PBO threshold gate (>= 0.3 blocks)
-- Thompson update regime_id requirement
-- SparseSafeCalibrator method selection by sample count
-- AWR weight explosion detection (max/mean > 100)
-
-### Marketing Tests
-
-- event_normalizer: blocked keys not in LLM payload
-- post_cleaner: hard_block_check fires on banned phrases
-- channel_tone_consistency: emoji counts, CTA rules, operator phrases
-- repetition_guard: Jaccard > 0.65 blocks
-- VALID_POSTURES: invalid posture value blocked
-- EXPIRED watch: never suppressed
-
----
-
-## Validation Gates
-
-### Pre-execution Checklist
-
-Before any production deployment:
+### Probability of Backtest Overfitting (PBO)
 
 ```
-[ ] N_total >= 10 (FAIL_N_BELOW_10)
-[ ] spacing_dec >= k_floor x (fees_dec + slippage_dec)
-[ ] No _pct units in any agent output (FAIL_UNIT_PCT)
-[ ] CardSpec STRICT mode (FAIL_CARDSPEC_MUTATION)
-[ ] SL_MODE != disabled (FAIL_SL_DISABLED)
-[ ] All PLT orders reduce_only=True (INVARIANT-PLT-01)
+PBO ≥ 0.3 → FAIL_PBO_OVERFIT → learning blocked
 ```
 
-### Post-execution Checklist
+PBO estimates the probability that the selected strategy configuration was chosen due to
+overfitting rather than genuine predictive power. A threshold of 0.3 means: if there is
+a 30% or greater chance the result is noise, the strategy is rejected.
 
-After every trading session:
+This runs automatically. No human override.
+
+---
+
+## Calibration — SparseSafeCalibrator
+
+Direction probability outputs must be calibrated — raw model scores are not probabilities.
+DROS uses an adaptive calibration pipeline that selects method based on available sample size:
+
+| Samples | Method | Rationale |
+|---------|--------|-----------|
+| < 50 | Temperature Scaling | Isotonic overfitting risk too high |
+| 50–500 | Beta Calibration | Optimal bias-variance balance |
+| > 500 | Isotonic Regression | Sufficient data for non-parametric fit |
+
+Calibrator state is persisted after every calibration cycle (`FAIL_CALIBRATOR_STATE_LOST` if not saved).
+Empirical Bayes kappa is estimated from marginal likelihood — hardcoded values are forbidden.
+
+---
+
+## Drift Detection — Black Swan Ensemble
+
+Four independent drift detectors run in parallel. **A minimum of 2/4 must agree** before a Black Swan signal is raised.
+
+| Detector | Algorithm | Detects |
+|----------|-----------|---------|
+| ADWIN | Adaptive Windowing | Gradual concept drift |
+| CUSUM | Cumulative Sum Control | Abrupt change points |
+| BOCPD | Bayesian Online Changepoint Detection | Probabilistic regime shifts |
+| Hawkes | Self-exciting point process | Clustering of extreme events |
+
+The 2/4 vote requirement prevents false positives from any single detector while maintaining sensitivity to genuine regime changes.
+
+---
+
+## Deployment Validation — Shadow → Canary → Production
+
+No strategy reaches production without passing a staged deployment pipeline:
 
 ```
-[ ] Cost Gate pass rate >= 90%
-[ ] Negative ROI entries = 0
-[ ] Live-Backtest divergence <= 10%
-[ ] Telemetry persisted (roi_snapshots, roi_events)
-[ ] No FAIL_* codes in daemon logs
-[ ] Reconciler drift ratio < 50%
+Stage 1: Research Lab
+  → Hypothesis registered before testing (FAIL_EVOL_POST_HOC_HYPOTHESIS if violated)
+  → POPPER E-value validation
+
+Stage 2: Counterfactual Lab
+  → Off-Policy Evaluation (OPE)
+  → Doubly Robust estimator + Clopper-Pearson confidence intervals
+
+Stage 3: Digital Twin
+  → Mirror Engine parity check (EPE / FRE / LPE < 5% divergence)
+
+Stage 4: Shadow Mode
+  → Minimum 7 days of parallel execution
+  → Zero production capital at risk
+
+Stage 5: Canary (10% traffic)
+  → Sequential Probability Ratio Test (SPA, p < 0.01)
+  → Rollback on failure
+
+Stage 6: Production
+  → Full deployment after canary validation
 ```
 
----
-
-## Hash Verification
-
-Every CardSpec is verified with sha256(code + contracts + cardspec):
-
-- Hash computed at A9 signature
-- Verified at every downstream agent access
-- Mismatch triggers FAIL_HASH_MISMATCH (P1 halt)
-
-This prevents parameter drift between signature and execution.
+Each stage has an automated gate. Human promotion is not required — but human override to skip stages is not permitted.
 
 ---
 
-## Shadow Validation
+## Invariant Contract Enforcement
 
-New features run in shadow mode before production:
+43 named invariant contracts enforce correctness properties throughout the system.
+Violations raise named FAIL codes and halt the relevant subsystem immediately.
 
-**Shadow = would-have logging only**:
-- No capital at risk
-- All gate decisions logged with "would-have" prefix
-- Metrics computed against shadow decisions
-- Production gate decisions unchanged
+Key validation-related invariants:
 
-Shadow promotion criteria (example: Direction Revalidation Enhancer):
-- conflict_precision >= 60%
-- false_positive_rate <= 20%
-- events >= 50
-- shadow_days >= 7
-- SPA p < 0.01
-
----
-
-## Digital Twin Parity
-
-Leviathan shadow strategies must maintain parity with production:
-
-| Metric | Threshold |
-|--------|-----------|
-| EPE (Execution Parity Error) | < 5% |
-| FRE (Fill Rate Error) | < 10% |
-| LPE (Latency Parity Error) | < 20% |
-
-Parity failure blocks graduation regardless of ROI performance.
+| INVARIANT | Rule |
+|-----------|------|
+| `INVARIANT-LEARNING-13` | A8 backtest requires CPCV+PBO — PBO ≥ 0.3 blocks learning |
+| `INVARIANT-LEARNING-16` | Isotonic Regression forbidden with < 50 samples |
+| `INVARIANT-LEARNING-18` | Empirical Bayes kappa must be estimated, not hardcoded |
+| `INVARIANT-LEARNING-19` | CPCV purge gap ≥ 24h — shorter gaps are invalid |
+| `INVARIANT-EVOL-02` | Hypotheses registered before testing — post-hoc forbidden |
+| `INVARIANT-EVOL-03` | Evolved strategies start at shadow stage — direct deployment forbidden |
+| `INVARIANT-EVOL-08` | Black Swan requires 2/4 ensemble vote |
 
 ---
 
-## Regression Protection
+## Academic Foundation
 
-Core regression suite (~179 tests) covers:
+DROS validation methodology is grounded in peer-reviewed research:
 
-- All FAIL codes (one test per code)
-- All INVARIANT rules
-- Edge cases identified in post-mortems (MERL, DEXE, DENT incidents)
-- SL stack behavior per mode (STRICT / CONTROLLED_OFF / BREAKGLASS_OFF)
-- Bootstrap 5-condition simultaneous unlock
-- Thompson sampling regime context
-
----
-
-## Test Environment
-
-```bash
-# Quick single-symbol validation
-export CHECKPOINT_LOGGING=1 FAIL_FAST_STRICT=1
-python3 -c "
-from core.a0_event_loop import EventLoop
-r = EventLoop().process_single_symbol('BTCUSDT', mode='turbo')
-assert r.get('card_created'), 'FAIL'
-"
-tail -20 logs_v5.2/checkpoint_BTCUSDT.jsonl
-
-# Full pipeline
-./run_safe_mode.sh
-```
+| Reference | Application |
+|-----------|-------------|
+| López de Prado (2018) — *Advances in Financial Machine Learning* | CPCV, Triple-Barrier Labels, Feature Importance |
+| López de Prado (2020) — *Machine Learning for Asset Managers* | PBO, walk-forward validation |
+| Adams & MacKay (2007) — *Bayesian Online Changepoint Detection* | BOCPD drift detector |
+| Easley, López de Prado, O'Hara (2012) — *VPIN: Flow Toxicity* | Microstructure toxicity detection |
+| Albers et al. (2025) — *Adverse Selection in Binance BTC Perpetuals* | Exchange-specific adverse flow modeling |
+| Grünwald et al. (2023) — *E-values: Calibration, Combining and Beyond* | POPPER E-value hypothesis testing |
+| Mouret & Clune (2015) — *Illuminating search spaces by mapping elites* | MAP-Elites quality-diversity search |
+| Hasani et al. (2022) — *Closed-form continuous-time neural networks* | CfC microstructure anomaly detection |
 
 ---
 
-*Validation documentation for DROS v12.4b | 2026-03-14*
+## What We Do Not Validate
+
+In the interest of transparency:
+
+- **Live PnL is not published** — production performance figures are not included in this repository
+- **Backtested returns are not claimed** — past validation results do not predict future performance
+- **Market regime coverage is partial** — DROS is calibrated on observed regimes; novel regimes may not be covered
+
+---
+
+*→ See [Learning](./learning.md) · [Safety](./safety.md) · [Evolution Lab](./evolution-lab.md)*
