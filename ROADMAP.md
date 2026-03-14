@@ -37,7 +37,7 @@ This roadmap reflects the actual development trajectory of DROS. Items marked �
 - [x] Direction Safety v8.9.2 — PSI, tail risk, abstain threshold
 - [x] Kill Switch + circuit breaker (429/418 → 5-min backoff)
 
-### AI Evolution Lab v3
+### Leviathan v4.0 (formerly AI Evolution Lab v3)
 - [x] EnhancerBus — Strangler Fig pattern, 8-enhancer pipeline
 - [x] ACI Risk — Adaptive Conformal Inference controller
 - [x] EventStore — SQLite WAL append-only event log
@@ -46,6 +46,10 @@ This roadmap reflects the actual development trajectory of DROS. Items marked �
 - [x] Black Swan Ensemble — 2/4 vote (ADWIN+CUSUM+BOCPD+Hawkes)
 - [x] Alpha Foundry — pyribs MAP-Elites genome evolution
 - [x] OODA Loop — offline strategy loop (03:00–09:00 KST)
+- [x] 5-Brain Architecture — Perception / Forecast / Microstructure / Risk / Execution
+- [x] Dual-Ring deployment — Ring 1 production / Ring 2 shadow (would-have logging, no capital impact)
+- [x] AlphaFoundryClock — 72h optimization cycle control
+- [x] MLX GPU subprocess — Metal GPU isolation (spawn context, fork banned)
 
 ---
 
@@ -69,6 +73,9 @@ This roadmap reflects the actual development trajectory of DROS. Items marked �
 - [ ] Regime-conditioned Thompson Sampling priors
 - [ ] Cross-symbol transfer learning (A15 prototype)
 - [ ] Enhanced VPIN + Hawkes process microstructure fusion
+- [ ] Bot 5-command interface — /scorecard /watch /accuracy /expired /regime (query-only)
+- [ ] Weekly Transparency digest — Monday 09:00 KST, Private channel, idempotency key
+- [ ] Public methodology docs — scoring_policy, signal_taxonomy open documentation
 
 ### Research Pipeline
 - [ ] Reinforcement Learning from Market Feedback (RLMF)
@@ -108,6 +115,11 @@ These invariants exist because the cost of getting them wrong (liquidation, sile
 
 | Version | Date | Key Changes |
 | :--- | :--- | :--- |
+| v12.4b | 2026-03 | Leviathan v4.0, Marketing v6.2, Bootstrap Gate, PNL Efficiency Engine, Direction Cache fix |
+| v12.3b | 2026-03 | Bootstrap Safety Gate, Marketing v6.1 production |
+| v12.2  | 2026-03 | 8-Layer Gate, Direction accuracy (ADX+ER), Symbol Sentiment 5-axis |
+| v12.1  | 2026-03 | Dynamic SL 3-Stack, SL_MODE 3-tier, place_protective_stop() |
+| v12.0  | 2026-03 | Position State Machine, LLM Hard-Safety Guard, PSI Double Gate |
 | v11.20 | 2026-03 | N* 60s TTL caching, parallel main_loop shadow |
 | v11.19 | 2026-03 | PLT-Reconciler 2-layer exemption fix |
 | v11.18 | 2026-03 | Card registry type safety fix |
