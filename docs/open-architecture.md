@@ -1,146 +1,212 @@
-# 🔓 Open Architecture, Closed Execution
+# Open Architecture and Extension Points
 
-> A third path between fully open source and fully proprietary systems.
-
----
-
-## The Model
-
-DROS operates under a **dual-layer transparency model**:
-
-| Layer | Status | Rationale |
-| :--- | :--- | :--- |
-| System architecture | **Open** | Transparency builds community trust |
-| Agent pipeline design | **Open** | Research contribution and peer review |
-| Safety gate principles | **Open** | Accountability and reproducibility |
-| Learning methodology | **Open** | Academic validation and critique |
-| Evolution framework | **Open** | Ecosystem development |
-| Production daemon code | **Closed** | Execution edge protection |
-| Learned parameters | **Closed** | Strategy confidentiality |
-| Live configuration | **Closed** | Operational security |
-| Model weights | **Closed** | Proprietary optimization |
+DROS is designed with explicit extension points for adding new signal sources, enhancers, and learning components without modifying core execution logic.
 
 ---
 
-## Why Not Fully Open Source?
+## Extension Philosophy
 
-A fully open system would expose the precise calibration that makes the execution layer effective.
-In adversarial markets, execution parameters are the edge. Publishing them reduces their value for everyone — including the community.
+**Enhancer pattern**: New logic attaches to the EnhancerBus, not to core agents. Core agents (A0-A15) are stable. New intelligence is added as enhancers that read DecisionPacket fields and write to extra_context only.
 
-More importantly: **the architecture is the contribution worth sharing**.
+**Feature flags**: All new features start with a feature flag defaulting to 0. Shadow mode is mandatory before production. No direct deployment.
 
-The design decisions — how 16 agents coordinate without conflicts, how a 7-layer gate prevents cascading failures, how evolution happens under scientific discipline — these are the ideas that advance the field.
-
-The specific threshold values and learned weights are implementation details that do not generalize.
+**Hook isolation**: Marketing hooks are lazy-imported with try/except isolation. A failing hook cannot affect trading execution.
 
 ---
 
-## Why Not Fully Closed?
+## EnhancerBus (A14)
 
-A fully closed system cannot be critiqued, improved upon, or trusted.
+The primary extension point for new intelligence:
 
-**Transparency enables:**
-- Academic peer review of methodology
-- Community identification of design flaws
-- Independent replication of architectural patterns
-- Institutional due diligence without NDA friction
+```python
+# Enhancer interface
+class BaseEnhancer:
+    def enhance(self, packet: DecisionPacket) -> None:
+        # Read: packet.symbol, packet.p_dir, packet.regime, etc.
+        # Write: packet.extra_context["my_signal"] = value
+        # NEVER write to packet.p_dir, packet.spacing_dec, etc.
+        pass
+```
 
-**Closed execution enables:**
-- Competitive edge preservation
-- Adversarial environment protection
-- IP protection for enterprise licensing discussions
+**Registration** (in enhancer_bus.py):
+```python
+bus.register(MyEnhancer())
+```
 
----
-
-## What We Open
-
-### Architecture and Design
-- 16-agent pipeline structure and interaction contracts
-- SpacingOracleSSOT concept (Yang-Zhang volatility approach)
-- 7-Layer Entry Gate design and layer rationale
-- Named FAIL codes and INVARIANT contracts (principles, not values)
-- Shadow → Canary → Production deployment framework
-
-### Methodology
-- AWR + Thompson Sampling dual learning loop design
-- CPCV + PBO validation pipeline (academic standard)
-- Black Swan Ensemble architecture (ADWIN + CUSUM + BOCPD + Hawkes, 2/4 vote)
-- AI Evolution Lab: Strangler Fig pattern, MAP-Elites genome search
-- SparseSafeCalibrator adaptive selection by sample count
-
-### Failure Cases
-- MERL liquidation event (Feb 2, 2026) — root cause and response
-- CLO uncertainty event (Feb 4, 2026) — direction confidence failure
-- Every safety layer has its documented origin failure
-
-### Academic Foundation
-- 12 peer-reviewed references (López de Prado, Easley et al., Adams & MacKay, Hasani et al., Albers et al.)
-- Methodology aligned with academic backtesting standards
+**Rules**:
+- Write to `extra_context` only (INVARIANT-EVOL-01)
+- Wrap in try/except with debug logging (silent failure banned)
+- Must have feature flag (default 0)
+- Shadow mode before production
 
 ---
 
-## What We Keep Closed
+## Signal Extension (Marketing Hooks)
 
-### Execution Layer
-- `execution/` daemon implementation
-- Order routing logic and timing parameters
-- Exact safety threshold values (calibrated per market regime)
+Adding a new marketing signal type:
 
-### Learned State
-- Thompson Sampling posterior values
-- AWR replay buffer and trained weights
-- SparseSafeCalibrator fitted state
-- Preset parameter configurations
+### 1. Define in signal_taxonomy.py
 
-### Operational Data
-- Live positions and portfolio state
-- Historical PnL and drawdown figures
-- Active symbol configurations
-- API credentials and runtime environment
-
----
-
-## For Enterprise Partners
-
-Institutional partners (exchanges, quant funds, strategic investors) receive access to additional layers through NDA-gated briefings:
-
-- Full architecture walkthrough with implementation details
-- Performance attribution methodology
-- Deployment infrastructure documentation
-- Licensing and acquisition discussions
-
-→ [Enterprise inquiries](mailto:enterprise@deepreasoningos.com)
-
----
-
-## For Researchers
-
-Academic researchers may cite DROS architecture in publications using:
-
-```bibtex
-@software{dros2026,
-  author = {DROS Core Team},
-  title  = {Deep Reasoning OS: A Multi-Agent Autonomous Trading Architecture},
-  year   = {2026},
-  url    = {https://github.com/dros-core/deep-reasoning-os}
+```python
+# Add to SIGNAL_TYPES
+"MY_NEW_SIGNAL": {
+    "tier": "TIER_2",
+    "channels": ["telegram_private"],
+    "conversion_mode": "none",
 }
 ```
 
-→ [Full citation format](../CITATION.cff)
+### 2. Add to event_normalizer.py
+
+```python
+# Add to _MARKET_EVENT_MAP
+"MY_NEW_SIGNAL": "human-readable description",
+
+# Add to _SEVERITY_MAP
+"MY_NEW_SIGNAL": "medium",
+```
+
+### 3. Create hook
+
+```python
+# In the relevant system file (lazy import + try/except)
+def _emit_my_signal(payload):
+    try:
+        from marketing.emitter import emit_signal
+        emit_signal("MY_NEW_SIGNAL", payload)
+    except Exception:
+        pass  # hook failure cannot affect trading
+```
+
+### 4. Add formatter template
+
+Templates in public_formatter.py, private_formatter.py, x_formatter.py follow the OIAS structure (Observation / Interpretation / Action / State).
 
 ---
 
-## For Community Members
+## Learning Extension
 
-The DROS Research Lab shares public-safe observations about:
-- Market regime transitions and structural shifts
-- Architecture updates and design decisions
-- Research methodology and validation approaches
+Adding a new learning component:
 
-No financial signals. No alpha claims. Engineering transparency only.
+### Thompson Context Extension
 
-→ [Join DROS Research Lab](https://t.me/deepreasoningos)
+```python
+# Register new context dimension in Thompson manager
+thompson.register_context_dim("my_dim", values=["a", "b", "c"])
+```
+
+### New Calibrator
+
+Must implement SparseSafeCalibrator interface:
+
+```python
+class MyCalibrator:
+    def fit(self, X, y): ...
+    def predict_proba(self, X): ...  # must return [0,1]
+    def save_state(self, path): ...  # INVARIANT-LEARNING-23
+    def load_state(self, path): ...
+```
 
 ---
 
-*→ See [Architecture](./architecture.md) · [Safety](./safety.md) · [FAQ](./faq.md)*
+## Evolution Lab Extension
+
+### Adding a New Detector to Black Swan Ensemble
+
+Current ensemble: ADWIN, CUSUM, BOCPD, Hawkes (2/4 vote required).
+
+Adding a 5th detector:
+1. Implement `BaseAnomalyDetector` interface
+2. Register in `black_swan_ensemble.py`
+3. Vote threshold remains 2 (out of now 5)
+4. Feature flag required
+
+### Adding a New QD Dimension to AlphaFoundry
+
+MAP-Elites grid has defined behavior dimensions. Adding a dimension:
+1. Define range and discretization in `alpha_foundry_config.py`
+2. Implement measurement in `genome_evaluator.py`
+3. Update `required_budget()` calculation (INVARIANT-EVOL-17)
+
+---
+
+## WatchRegistry Extension
+
+Custom observation types can be registered:
+
+```python
+from marketing.watch.watch_registry import WatchRegistry
+
+# Always use WatchRegistry.new_watch_id() -- INVARIANT-MKT-28
+watch_id = WatchRegistry.new_watch_id()
+registry.register_watch(
+    watch_id=watch_id,
+    symbol="BTCUSDT",
+    condition="my_condition",
+    window_seconds=3600,
+    tier="A",
+)
+```
+
+Manual watch_id construction triggers FAIL_MKT_WATCH_ID_MANUAL.
+
+---
+
+## Feature Flag Pattern
+
+All extensions require a feature flag:
+
+```python
+# config/feature_flags.json
+{
+  "USE_MY_FEATURE": {
+    "state": "shadow",
+    "description": "My new feature description"
+  }
+}
+```
+
+```python
+# In code
+from config.feature_flags import FeatureFlagManager
+if FeatureFlagManager.is_active("USE_MY_FEATURE"):
+    # production path
+elif FeatureFlagManager.is_shadow("USE_MY_FEATURE"):
+    # shadow path: log would-have, no capital impact
+```
+
+**Flag state override**: `os.environ['USE_MY_FEATURE'] = '0'` overrides feature_flags.json. Changing flag state requires plist `launchctl unload + load`.
+
+---
+
+## Banned Extension Patterns
+
+These patterns are explicitly banned and will trigger fail codes:
+
+| Pattern | Fail Code | Why |
+|---------|-----------|-----|
+| importlib.reload() | FAIL_IMPORT_RELOAD | Race conditions in async process |
+| Direct Ollama call | FAIL_LLM_DIRECT_CALL | Rate limit, timeout, fallback bypass |
+| Hardcoded learned_presets path | FAIL_PRESET_PATH_MISMATCH | Path must be registry-managed |
+| asyncio.call_later() for marketing | FAIL_MKT_SCHEDULE_LOST | Lost on restart; use SQLite |
+| random() for dithering | INVARIANT-AOSM-07 | Non-deterministic, use hash() |
+| Flat (non-hierarchical) debias | FAIL_A8_DEBIAS_FLAT | Overfitting on sparse data |
+| Direct _fill_open_slots() after SL | FAIL_SL_DIRECT_FILL | Race with slot budget |
+| Writing to packet.p_dir in enhancer | INVARIANT-EVOL-01 | Core field, read-only for enhancers |
+| fork() for MLX subprocess | FAIL_EVOL_FORK_MLX | Deadlocks on Python 3.13 ARM64 |
+
+---
+
+## Adding New Fail Codes
+
+When adding a new invariant:
+
+1. Add fail code to `contracts/agent_contracts.py`
+2. Add test in test suite (one test per fail code)
+3. Add to CLAUDE.md Fail-Fast section
+4. Run dros-doc-updater agent to sync documentation
+5. Add to relevant rules file (.claude/rules/)
+
+---
+
+*Open architecture documentation for DROS v12.4b | 2026-03-14*
