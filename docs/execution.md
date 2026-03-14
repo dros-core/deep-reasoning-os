@@ -102,3 +102,27 @@ Shadow → Canary (10%) → Production
 ```
 
 All new execution features begin in shadow mode (full validation, zero capital). Graduation requires SPA statistical test (p < 0.01) and minimum 7-day shadow period.
+
+---
+
+### PNL Efficiency Gate (v12.4b)
+
+Eight-phase validation runs before capital allocation to filter low-edge entries.
+
+| Gate | Contract |
+|------|----------|
+| Oscillation | market oscillation or self-churn above threshold → block (FAIL_OSCILLATION_TRAP) |
+| Level Cooldown | dynamic cooldown based on volatility; fixed cooldown banned (FAIL_LEVEL_COOLDOWN_BYPASS) |
+| ABS PnL Floor | expected net PnL below floor → skip (FAIL_LOW_ABS_PNL_EDGE) |
+| Quality-Size | oversized notional requires confirmed strong signal count (FAIL_QUALITY_SIZE_VIOLATION) |
+| Fee Burn Rate | fee burn rate above threshold → symbol freeze (INVARIANT-PNL-11) |
+| Winner-Loser | projected stop-loss exceeds median-win threshold → N* reduction (INVARIANT-PNL-12) |
+| Loss Streak | Kelly 3-factor penalty applied (symbol + cluster + market_beta) |
+| PLT Cooldown | per-level dynamic cooldown enforced (INVARIANT-PLT-06) |
+
+### Direction Cache (v12.4b)
+
+IntelligenceBridge wires StateStore at daemon startup. `hot_reload_cards()` hysteresis bypass
+requires confirmed actual position alignment from StateStore (FAIL_DIRECTION_CACHE_STALE).
+
+REVERSE POSITION GUARD fires `force_card_direction()` to keep cache synchronized with actual positions.

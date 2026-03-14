@@ -109,7 +109,7 @@ Each stage has an automated gate. Human promotion is not required — but human 
 
 ## Invariant Contract Enforcement
 
-43 named invariant contracts enforce correctness properties throughout the system.
+50+ named invariant contracts enforce correctness properties throughout the system.
 Violations raise named FAIL codes and halt the relevant subsystem immediately.
 
 Key validation-related invariants:
@@ -150,6 +150,21 @@ In the interest of transparency:
 - **Live PnL is not published** — production performance figures are not included in this repository
 - **Backtested returns are not claimed** — past validation results do not predict future performance
 - **Market regime coverage is partial** — DROS is calibrated on observed regimes; novel regimes may not be covered
+
+---
+
+### Marketing Tests
+- SYMBOL_WATCH/CONFIRMED lifecycle: CONFIRMED requires linked WATCH (FAIL_MKT_CONFIRM_NO_WATCH)
+- EXPIRED results: never suppressed, DB-logged + channel published (FAIL_MKT_EXPIRED_HIDDEN)
+- lead_time_s: raw value blocked; humanize_lead_time() required (FAIL_MKT_LEAD_TIME_RAW)
+- Daily channel limits enforced per channel (FAIL_MKT_DAILY_LIMIT_EXCEEDED)
+- psych_policy.CONVERSION_MODE: alert signals carry no CTA
+- WatchRegistry.new_watch_id() required for all watch IDs (FAIL_MKT_WATCH_ID_MANUAL)
+
+### Pre-Deployment Marketing Checklist
+- [ ] WatchRegistry.new_watch_id() for all watch IDs (FAIL_MKT_WATCH_ID_MANUAL)
+- [ ] EXPIRED results: DB record + channel delivery (FAIL_MKT_EXPIRED_HIDDEN)
+- [ ] lead_time_s via humanize_lead_time() only (FAIL_MKT_LEAD_TIME_RAW)
 
 ---
 

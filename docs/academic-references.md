@@ -62,6 +62,14 @@ DROS design decisions are grounded in peer-reviewed research. This document maps
 
 ---
 
+## Transparency and Trust
+
+| Paper | Application in DROS |
+|:------|:--------------------|
+| Nosek, B.A., et al. (2018) — *The preregistration revolution*. PNAS. | **Research Product Layer**: Registered Reports model — method fixed before results, outcomes disclosed on same ledger. WATCH filed before outcome → CONFIRMED/EXPIRED published on same ledger regardless of direction. EXPIRED watch signals never suppressed (INVARIANT-MKT-29). |
+
+---
+
 ## Notes on Application
 
 These papers were not applied speculatively. Each is referenced in a specific, verifiable component:

@@ -29,7 +29,7 @@ In adversarial markets, execution parameters are the edge. Publishing them reduc
 
 More importantly: **the architecture is the contribution worth sharing**.
 
-The design decisions — how 16 agents coordinate without conflicts, how a 7-layer gate prevents cascading failures, how evolution happens under scientific discipline — these are the ideas that advance the field.
+The design decisions — how 16 agents coordinate without conflicts, how an 8-layer safety gate prevents cascading failures, how evolution happens under scientific discipline — these are the ideas that advance the field.
 
 The specific threshold values and learned weights are implementation details that do not generalize.
 
@@ -57,9 +57,14 @@ A fully closed system cannot be critiqued, improved upon, or trusted.
 ### Architecture and Design
 - 16-agent pipeline structure and interaction contracts
 - SpacingOracleSSOT concept (Yang-Zhang volatility approach)
-- 7-Layer Entry Gate design and layer rationale
+- 8-Layer Safety Gate design and layer rationale
 - Named FAIL codes and INVARIANT contracts (principles, not values)
 - Shadow → Canary → Production deployment framework
+
+**Pre-alert signals**: SYMBOL_WATCH / SYMBOL_CONFIRMED / SYMBOL_WATCH_EXPIRED / SYMBOL_ACTION_PROOF
+- Hook 6 (direction_safety.py): PSI threshold → SYMBOL_WATCH
+- Hook 7 (daemon.py): grid execution degradation → SYMBOL_WATCH
+- Hook 8 (entry_gate.py): entry confirmed block → SYMBOL_CONFIRMED
 
 ### Methodology
 - AWR + Thompson Sampling dual learning loop design
@@ -76,6 +81,15 @@ A fully closed system cannot be critiqued, improved upon, or trusted.
 ### Academic Foundation
 - 12 peer-reviewed references (López de Prado, Easley et al., Adams & MacKay, Hasani et al., Albers et al.)
 - Methodology aligned with academic backtesting standards
+
+---
+
+### Banned Extension Patterns
+
+| Pattern | Fail Code | Required Alternative |
+|:---|:---|:---|
+| asyncio.call_later() for ACTION_PROOF | FAIL_MKT_SCHEDULE_LOST | Use SQLite scheduled_marketing_events |
+| Manual watch_id construction | FAIL_MKT_WATCH_ID_MANUAL | Use WatchRegistry.new_watch_id() |
 
 ---
 
