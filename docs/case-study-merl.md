@@ -112,6 +112,12 @@ The system entered SHORT despite a direction confidence of exactly 50% — stati
 Any entry where direction confidence falls within a neutral zone around 50% is now blocked.
 The system will not execute when it cannot distinguish signal from noise.
 
+**v12.x Additional Defenses (2026-03)**:
+- Bootstrap Safety Gate (v12.3b): multi-condition simultaneous unlock prevents premature entry
+- Dynamic SL 3-Stack (v12.1): Stack A always active, regime-adaptive Chandelier, Grid-Fail 3-factor
+- PNL Efficiency Gate (v12.4b): oscillation + fee burn + quality-size 8-phase filter
+- Direction Cache protection (v12.4b): force_card_direction() on position mismatch detection
+
 ---
 
 ## Engineering Philosophy
