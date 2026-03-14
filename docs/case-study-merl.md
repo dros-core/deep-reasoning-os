@@ -1,115 +1,139 @@
-# Case Study: MERL Liquidation and Defense System
+# 📉 Case Study: The MERL Liquidation Event
 
-## Incident Summary
+> *"Every safety layer in DROS has a real failure behind it."*
 
-**Symbol**: MERLUSDT
-**Position**: SHORT
-**Outcome**: 100% liquidation
+---
 
-**Sequence**: MERLUSDT SHORT position entered during apparent ranging market. A +37% LONG rally followed, exceeding all grid levels. Position liquidated at full loss.
+## Overview
 
-This incident drove the MERL Prevention System (v8.4+), which introduced five defensive layers now active in production.
+On **February 2, 2026**, DROS held a SHORT position on MERLUSDT.  
+The token rallied **+37%** in a sustained LONG move.  
+The position reached **100% liquidation**.
+
+This document describes what happened, why the existing system failed to prevent it,
+and how DROS was redesigned in response.
+
+---
+
+## What Happened
+
+| Item | Detail |
+| :--- | :--- |
+| **Symbol** | MERLUSDT |
+| **DROS judgment** | SHORT |
+| **Actual market move** | +37% LONG rally |
+| **Outcome** | 100% liquidation |
+| **Date** | 2026-02-02 |
+
+The event was not a data error or execution bug.  
+The system made a directional judgment — and the market moved against it with no mechanism to intervene.
 
 ---
 
 ## Root Cause Analysis
 
-### Contributing Factors
+Post-event investigation identified five contributing factors:
 
-1. **Macro sentiment not gated**: PSI veto not enforced at card creation time. PSI was elevated (bullish bias) but entry was allowed.
+| ID | Root Cause | Category |
+|----|-----------|----------|
+| E1 | Funding rate signal misinterpreted — bullish funding treated as neutral | Signal quality |
+| E2 | Direction model relied on lagging indicators only (MACD, RSI, ADX) | Model quality |
+| E3 | No Tail Risk KPI defined — extreme rally probability unmodeled | Risk coverage |
+| W4 | No real-time Kill Switch — position could not be exited on signal | Execution gap |
+| W7 | No Tail Risk model in production at time of event | Risk coverage |
 
-2. **Tail risk underweighted**: effective_tail_risk used card-level risk metrics only. direction_safety computed a higher risk independently. The max() merge was not implemented.
-
-3. **LLM soft score absorbed hard signals**: LLM confidence adjustment partially offset the directional uncertainty signal, allowing a marginal entry through.
-
-4. **No Net ROI gate**: Expected net ROI was negative after fees and slippage. Entry was not blocked.
-
-5. **Dead Zone too narrow**: p_dir Dead Zone was [0.45, 0.55]. Direction signal at 0.43 was classified as SHORT rather than abstain.
-
----
-
-## Post-Incident Changes
-
-### v8.4+ — MERL Prevention System
-
-Five defensive layers introduced:
-
-| Layer | Description |
-|-------|-------------|
-| Entry Gate | PSI hard veto at card creation (FAIL_PSI_ABSOLUTE_VETO) |
-| Funding SSOT | Funding rate as independent kill signal |
-| Kill Switch | Global entry suspension on drawdown threshold |
-| Tail Risk | effective_tail_risk = max(card.risk_metrics, direction_safety) |
-| Microstructure | VPIN toxicity detection, order flow analysis |
-
-### v12.0 — Hard Gate Separation
-
-The MERL lesson was formalized into the 8-Layer Safety Gate architecture:
-
-- **Layer 1 (PSI/Macro)**: Enforced at both card creation AND entry decision
-- **Layer 2 (Tail Risk)**: effective_tail_risk = max() merge enforced as INVARIANT (TailRiskSSOT)
-- **Layer 3 (Net ROI Gate)**: net_roi_expected < -5% blocks entry (FAIL_NEGATIVE_ROI_ENTRY)
-- **LLM Hard-Safety Guard**: LLM adjustment zeroed if any hard gate condition violated
-
-### v12.2 — Direction Dead Zone Expansion
-
-Dead Zone widened from [0.45, 0.55] to [0.38, 0.62]:
-- Signals in [0.38, 0.62] abstain -- no position
-- Asymmetric thresholds: Long requires p_dir >= 0.58, Short requires p_dir <= 0.42
-- SHORT at 0.43 would now be classified as abstain (Dead Zone)
-
-### v12.1 — Dynamic SL Architecture
-
-Three-stack SL system prevents runaway loss:
-- **Stack A**: Catastrophe Stop always active, cannot be disabled
-- **Stack B**: Chandelier Trail, regime-adaptive (ranging: 2.5x ATR minimum)
-- **Stack C**: Grid-Fail SL on execution degradation
-
-A MERL-equivalent incident would now be contained by Stack A before full liquidation.
+The core problem: the system had no mechanism to recognize and respond to an extreme short-squeeze scenario in real time.
 
 ---
 
-## Current Defenses Against MERL-Class Events
+## System Response
 
-1. **PSI Double Gate**: PSI veto checked at card creation AND entry. Cannot be bypassed by FGI recovery (INVARIANT-MACRO-02).
+The MERL event became the foundation of DROS v8.4+ safety architecture.
 
-2. **effective_tail_risk**: Always max(card, direction_safety). Single-source tail risk banned.
+**Defenses added directly in response:**
 
-3. **Net ROI Gate**: Negative expected ROI blocked before position opens.
+### 1. Macro Sentiment Veto (Layer 1)
+A regime-level directional block. When macro sentiment indicators cross a defined threshold,
+Long entries are completely blocked — regardless of other signals.
 
-4. **Dead Zone [0.38, 0.62]**: Marginal directional signals produce no position.
+### 2. Tail Risk Model (Layer 2)
+A dedicated model for estimating extreme event probability.
+When tail risk exceeds its threshold, all entries are blocked — direction-agnostic.
+This would have caught the MERLUSDT short-squeeze scenario.
 
-5. **Stack A Catastrophe Stop**: Always active. Cannot be disabled by SL_ENABLED or any flag.
+### 3. Dynamic Kill Switch
+Real-time position exit capability triggered by configurable signal conditions.
+Addresses the W4 gap: positions can now be exited before liquidation.
 
-6. **Symbol Sentiment 5-axis**: Crowding + Participation + Aggression + SmartMoney + Execution all checked. Single-axis signal cannot drive entry.
+### 4. Funding Rate SSOT
+`contracts/funding_ssot.py` — Funding rate signal now has a single source of truth
+with explicit interpretation contracts. Addresses E1.
 
-7. **VPIN Toxicity Detection**: Order flow analysis detects informed trading before position opens.
-
-8. **FGI Kelly Cap**: FGI < 20 (extreme fear) caps position size at 2.5% normal size (Fractional Kelly).
-
----
-
-## Metrics Since MERL Prevention Deployment
-
-| Metric | Pre-MERL | Post v12.1 |
-|--------|----------|-----------|
-| Catastrophic loss events | Yes | 0 |
-| SL whipsaw events | N/A | 0 |
-| Negative ROI entries | Yes | 0% |
-| Dead Zone abstain rate | 0% (no dead zone) | Active |
+### 5. Microstructure Signals
+VPIN and OFI integrated into the direction pipeline.
+Addresses E2 — direction no longer relies on lagging indicators alone.
 
 ---
 
-## Lessons Applied System-Wide
+## What the 7-Layer Gate Looks Like Now
 
-The MERL incident established three architectural principles now enforced as invariants:
+The MERL event was the catalyst for formalizing the entry validation architecture:
 
-1. **Hard gates before soft scores**: No LLM confidence adjustment can override PSI, tail_risk, or net_roi gate.
+```
+Entry Request
+    ├─ Layer 1: Macro Sentiment Veto       ← MERL defense
+    ├─ Layer 2: Tail Risk Veto             ← MERL defense
+    ├─ Layer 3: Direction Uncertainty Block ← CLO/USDT defense (Feb 4)
+    ├─ Layer 4: Range Extreme Check
+    ├─ Layer 5: Toxicity Shield (VPIN)
+    ├─ Layer 6: Liquidation Probability Gate
+    └─ Layer 7: Card Freshness Gate (AQER)
+```
 
-2. **max() merge for risk**: When two subsystems compute the same risk metric independently, always use the higher value.
-
-3. **Stack A is unconditional**: A stop-loss mechanism that can be disabled provides false safety. Stack A cannot be disabled by any means.
+Every layer exists because of a documented failure or risk scenario.
 
 ---
 
-*MERL post-mortem and defense system for DROS v12.4b | 2026-03-14*
+## The CLO Event — Two Days Later
+
+On **February 4, 2026**, a second event occurred:
+
+| Item | Detail |
+| :--- | :--- |
+| **Symbol** | CLO/USDT |
+| **p_dir (direction confidence)** | 0.50 — maximum uncertainty |
+| **DROS judgment** | SHORT |
+| **Actual move** | +24% LONG pump |
+
+The system entered SHORT despite a direction confidence of exactly 50% — statistically equivalent to a coin flip.
+
+**Defense added — Layer 3 (Direction Uncertainty Block):**
+
+Any entry where direction confidence falls within a neutral zone around 50% is now blocked.
+The system will not execute when it cannot distinguish signal from noise.
+
+---
+
+## Engineering Philosophy
+
+These events shaped a core DROS principle:
+
+> **"We do not try to predict the unpredictable.  
+> We compute what is directly computable — liquidation probability, regime state, microstructure toxicity —  
+> and block entries that fail these checks."**
+
+The 43 invariant contracts in DROS production code exist as a direct consequence of this philosophy.
+Each contract is a formalized rule that prevents a category of failure from recurring.
+
+---
+
+## Transparency Note
+
+We publish this case study because we believe engineering honesty builds more trust than performance claims.
+
+The MERL event was a real loss from a real production system.  
+The response was systematic, documented, and verifiable in the architecture.
+
+---
+
+*→ See [Safety](./safety.md) · [Architecture](./architecture.md) · [Evolution Lab](./evolution-lab.md)*
