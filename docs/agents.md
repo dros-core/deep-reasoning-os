@@ -23,7 +23,8 @@ DROS coordinates 16 specialized AI agents through a structured pipeline. Each ag
 | **A11** | Risk Governance | Exposure, leverage, loss limits | Kelly layer6 |
 | **A12** | SRE Monitor | KPI tracking, runbook automation | — |
 | **A13** | Debug & QA | Contract enforcement, `_pct` blocking | LogSimilarity layer6 |
-| **A14** | Reliability Analyst | Confidence and reliability scoring | Reliability target enforcement |
+| **A14** | Leviathan Bridge | 5-Brain enhancer routing, shadow/production ring dispatch | INVARIANT-EVOL-01 |
+| **A15** | Marketing Emitter | 8 hook points, pre-alert system, channel routing | FAIL_MKT_EXPIRED_HIDDEN, FAIL_MKT_LEAD_TIME_RAW |
 
 ---
 
@@ -92,3 +93,20 @@ Layer6 activates automatically when task complexity exceeds threshold (≥ 0.5).
 **Deterministic Contracts**: Agent behavior is governed by named invariant contracts enforced at runtime. AI assists; deterministic code decides.
 
 **Advisory-Only LLM**: LLM outputs are structured suggestions. They do not directly trigger orders. All LLM calls route through a broker with timeout and deterministic fallback.
+
+---
+
+### A14 — Leviathan Bridge (formerly Reliability Analyst)
+- Routes decisions to Leviathan v4.0 5-Brain enhancers via EnhancerBus
+- Enhancers write to `DecisionPacket.extra_context` only (INVARIANT-EVOL-01)
+- Wrap in try/except with debug logging (silent failure banned)
+- Shadow ring: would-have logging only, no capital impact
+
+### A15 — Marketing Emitter
+- 8 hook points (Hook 1-5: core signals, Hook 6-8: pre-alert)
+- Hook 6: PSI threshold → SYMBOL_WATCH (direction_safety.py)
+- Hook 7: grid execution degradation → SYMBOL_WATCH (daemon.py)
+- Hook 8: Entry gate confirmed block → SYMBOL_CONFIRMED (entry_gate.py)
+- All hooks: lazy import + try/except isolation (hook failure cannot affect trading)
+- EXPIRED results always published, never suppressed (FAIL_MKT_EXPIRED_HIDDEN)
+- lead_time_s must route through humanize_lead_time() (FAIL_MKT_LEAD_TIME_RAW)
