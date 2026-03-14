@@ -4,19 +4,20 @@
 
 ---
 
-## 7-Layer Entry Gate
+## 8-Layer Safety Gate
 
-Every trade candidate passes seven sequential checks before any order is placed. All layers must pass — a single rejection halts the pipeline.
+Every trade candidate passes eight sequential checks before any order is placed. All layers must pass — a single rejection halts the pipeline.
 
 | Layer | Name | Description |
 |:---:|:---|:---|
 | 1 | **Macro Sentiment Veto** | Macro regime indicator falls below configured threshold → long veto |
 | 2 | **Tail Risk Veto** | Tail risk score exceeds configured threshold → entry blocked |
-| 3 | **Direction Uncertainty Block** | Prediction confidence below abstain threshold → no position |
-| 4 | **Range Extreme Check** | Price at boundary of viable grid range → skip |
-| 5 | **ToxicityShield / VPIN** | Informed-flow toxicity score exceeds threshold → skip |
-| 6 | **Liquidation Probability** | Liquidation distance falls below configured safety margin → blocked |
-| 7 | **AQER StaleGate** | Card freshness TTL expired → entry forbidden |
+| 3 | **Net ROI Gate** | Negative expected ROI blocks entry — hard gate before LLM scoring |
+| 4 | **Direction Uncertainty Block** | Prediction confidence below abstain threshold → no position |
+| 5 | **Range Extreme Check** | Price at boundary of viable grid range → skip |
+| 6 | **ToxicityShield / VPIN** | Informed-flow toxicity score exceeds threshold → skip |
+| 7 | **Liquidation Probability** | Liquidation distance falls below configured safety margin → blocked |
+| 8 | **Position State Gate** | PositionStateMachine registration required before capital allocation |
 
 ---
 
@@ -40,7 +41,7 @@ DROS documents every liquidation event publicly. These events drove the safety a
 
 ## Invariant Contracts
 
-The system enforces 43 named invariants at runtime. Violations trigger immediate halt or self-correction.
+The system enforces 50+ named invariants at runtime. Violations trigger immediate halt or self-correction.
 
 ### P0 — Immediate System Halt
 
@@ -54,6 +55,7 @@ The system enforces 43 named invariants at runtime. Violations trigger immediate
 | `FAIL_REDUCE_ONLY_BLOCKED_BY_MARGIN_BACKOFF` | Reduce-only level suppressed by margin logic |
 | `FAIL_LLM_DIRECT_CALL` | LLM called directly without broker |
 | `FAIL_IMPORT_RELOAD` | `importlib.reload()` invoked at runtime |
+| `FAIL_DIRECTION_CACHE_STALE` | hot_reload_cards() hysteresis bypassed without StateStore position confirmation |
 
 ### P1 — Learning / Execution Halt
 
@@ -66,6 +68,11 @@ The system enforces 43 named invariants at runtime. Violations trigger immediate
 | `FAIL_TAIL_RISK_VETO` | Tail risk gate triggered |
 | `FAIL_PBO_OVERFIT` | Backtest overfitting detected |
 | `FAIL_AOSM_UNSAFE_MARGIN_RELEASE` | Margin release without liquidation distance validation |
+| `FAIL_MKT_LEAD_TIME_RAW` | lead_time_s raw value exposed without humanize_lead_time() |
+| `FAIL_MKT_WATCH_ID_MANUAL` | watch_id constructed manually outside WatchRegistry.new_watch_id() |
+| `FAIL_MKT_EXPIRED_HIDDEN` | EXPIRED watch result suppressed instead of published |
+| `FAIL_MKT_CONFIRM_NO_WATCH` | SYMBOL_CONFIRMED fired without linked WATCH |
+| `FAIL_MKT_DAILY_LIMIT_EXCEEDED` | Channel daily message limit exceeded |
 
 ### Self-Correcting Warnings
 
@@ -100,3 +107,25 @@ Shadow (full validation, no capital) → Canary (10% capital) → Production (10
 - Minimum 7-day shadow period
 - SPA statistical test (p < 0.01) required for graduation
 - Any P0 violation at any stage → immediate rollback
+
+---
+
+### INVARIANT-BOOTSTRAP
+
+| Code | Rule |
+|------|------|
+| INVARIANT-BOOTSTRAP-01 | Unlock requires quality_base_no_llm (LLM boost excluded) |
+| INVARIANT-BOOTSTRAP-02 | Shadow mode threshold changes absolutely forbidden |
+| INVARIANT-BOOTSTRAP-03 | SL exit refill via queued trigger only |
+| INVARIANT-BOOTSTRAP-04 | Multi-condition simultaneous unlock required |
+| INVARIANT-BOOTSTRAP-05 | F4 CASCADE and ReliabilityGate are independent components |
+| INVARIANT-BOOTSTRAP-06 | BootstrapActionBucket persisted to DaemonCheckpoint |
+
+### INVARIANT-LEVIATHAN
+
+| Code | Rule |
+|------|------|
+| INVARIANT-LEVIATHAN-01 | Shadow mode — log only, no capital impact |
+| INVARIANT-LEVIATHAN-08 | Post-Entry Sentinel — Hard Gate only, LLM calls banned |
+| INVARIANT-LEVIATHAN-09 | Ring 1 black lab code banned from production daemon import |
+| INVARIANT-LEVIATHAN-11 | _build_leviathan_telemetry() key names must be exact |
