@@ -20,7 +20,7 @@
 
 | Characteristic | Detail |
 |:---|:---|
-| **Layers per entry** | 7 sequential gates — all must pass |
+| **Layers per entry** | 8 sequential gates — all must pass |
 | **Enforcement** | Deterministic; no probabilistic bypass |
 | **P0 violations** | Immediate system halt |
 | **Card freshness** | Configurable TTL enforced at entry |
@@ -60,7 +60,7 @@
 | Component | Count |
 |:---|:---|
 | **Specialized agents** | 16 |
-| **Named invariant contracts** | 43 |
+| **Named invariant contracts** | 50+ |
 | **Evolution modules** | 53 |
 | **Feature flags** | 67 |
 
@@ -74,5 +74,8 @@
 | **Negative-ROI cards** | Target zero |
 | **Live-Backtest gap** | ≤ 10% |
 | **Card generation rate** | Target ≥ 80% |
+
+| **watch_confirmation_rate** | tracked | Confirmed / (Confirmed + Expired) |
+| **expired_suppression** | 0% target | EXPIRED always published, never hidden |
 
 *Actual measured values are not published publicly.*
