@@ -32,7 +32,7 @@ DROS is what I built to fix that. Developed solo on an **Apple M4 Pro**
 used for code review, refactoring, and iteration. All trading logic,
 risk models, and execution paths are human-designed and human-verified.
 Every failure is documented: the [MERL liquidation](./docs/case-study-merl.md)
-— a SHORT hit by a +37% LONG rally — is exactly what built the 7-layer safety gate.
+— a SHORT hit by a +37% LONG rally — is exactly what built the 8-layer safety gate.
 
 ---
 
@@ -42,7 +42,7 @@ Every failure is documented: the [MERL liquidation](./docs/case-study-merl.md)
 |:---|:---:|:---:|
 | **Agents** | 1 execution engine | 16 cooperative agents |
 | **Learning** | None or batch retrain | AWR + Thompson Sampling (real-time) |
-| **Safety** | Stop-loss only | 7-Layer Entry Gate · 43 invariant contracts |
+| **Safety** | Stop-loss only | 8-Layer Safety Gate · 50+ fail codes · 100+ invariant contracts |
 | **Microstructure** | Price and volume only | Informed-flow detection · game-theoretic defense |
 | **Deployment** | All-or-nothing | Shadow → Canary → Production |
 | **Transparency** | Closed | Open architecture, closed execution |
@@ -68,7 +68,7 @@ Every failure is documented: the [MERL liquidation](./docs/case-study-merl.md)
 |:------|:-----------|:-------|
 | **Data** | A1 · Yang-Zhang σ, ATR, funding rate | Volatility signal |
 | **Reasoning** | A2 · XGBoost + LightGBM + LLM bias | Market direction |
-| **Safety** | A3 · 7-Layer Entry Gate | Pass / ⛔ Halt |
+| **Safety** | A3 · 8-Layer Safety Gate | Pass / ⛔ Halt |
 | **Candidate** | A4 · EnsembleN* + SpacingOracleSSOT | CardSpec draft |
 | **Validate** | A5 · fee-floor · A6 · top-K · A8 · CPCV+PBO | Verified card |
 | **Sign** | A9 · sha256 seal — immutable after this point | Signed CardSpec |
@@ -107,9 +107,9 @@ Each agent owns exactly one responsibility. No agent recomputes another's output
 </details>
 
 <details>
-<summary><strong>🛡️ 7-Layer Safety Gate</strong></summary>
+<summary><strong>🛡️ 8-Layer Safety Gate</strong></summary>
 
-Every trade passes all seven layers sequentially. One failure halts the pipeline.
+Every trade passes all eight layers sequentially. One failure halts the pipeline.
 
 1. **Macro Sentiment Veto** — regime indicator threshold
 2. **Tail Risk Veto** — tail risk score threshold
@@ -118,6 +118,7 @@ Every trade passes all seven layers sequentially. One failure halts the pipeline
 5. **ToxicityShield / VPIN** — informed-flow toxicity detection
 6. **Liquidation Probability** — margin safety validation
 7. **AQER StaleGate** — card freshness TTL
+8. **Position State Gate** — PositionStateMachine registration required before capital allocation
 
 → [Full safety documentation](./docs/safety.md)
 
@@ -140,11 +141,19 @@ Additional layers: Bayesian Learning Subprocess (memory-isolated), CPCV + PBO ov
 </details>
 
 <details>
-<summary><strong>⚙️ Advanced Technical Pillars</strong> — CardSpec Immutability · AI Evolution Lab v3 · Open Architecture</summary>
+<summary><strong>⚙️ Advanced Technical Pillars</strong> — CardSpec Immutability · Leviathan v4.0 · Open Architecture</summary>
 
-### 🔬 AI Evolution Lab v3
+### 🔬 Leviathan v4.0 (formerly AI Evolution Lab)
 
-Thirteen modules applying the Strangler Fig pattern — new strategies run in shadow before touching capital.
+Five-brain architecture applying the Strangler Fig pattern — new strategies run in shadow before touching capital.
+
+- **Perception Brain**: Market state classification (regime, volatility, order flow)
+- **Forecast Brain**: Directional probability (p_dir ensemble)
+- **Microstructure Brain**: Execution quality (VPIN, fill rate)
+- **Risk Brain**: Exposure management (tail risk, drawdown)
+- **Execution Brain**: Order decision (grid parameters, SL/TP)
+
+Ring 1 (Production): SPA-graduated strategies only · Ring 2 (Shadow): would-have logging, no capital impact
 
 - **Alpha Foundry**: MAP-Elites genome search over grid parameter space
 - **OODA Loop**: Boyd's Observe-Orient-Decide-Act, offline only (03:00–09:00 KST)
@@ -153,7 +162,7 @@ Thirteen modules applying the Strangler Fig pattern — new strategies run in sh
 - **Black Swan Ensemble**: 2-of-4 detector vote (ADWIN, CUSUM, BOCPD, Hawkes)
 - **ACI Risk Controller**: Adaptive conformal inference for dynamic risk bounds
 
-Graduation path: Shadow (7 days min) → Canary (10%) → Production (SPA p < 0.01)
+Graduation path: Shadow (minimum observation window) → Canary → Production (statistical gate)
 
 → [Evolution Lab documentation](./docs/evolution-lab.md)
 
@@ -190,10 +199,10 @@ This boundary is intentional. The architecture is transparent; the edge is not.
 | Component | Detail |
 |:---|:---|
 | **Active Agents** | 16 specialized AI agents |
-| **Safety Layers** | 7-Layer Entry Gate · 43 invariant contracts |
+| **Safety Layers** | 8-Layer Safety Gate · 50+ fail codes · 100+ invariant contracts |
 | **Deployment Pipeline** | Shadow → Canary → Production |
 | **Learning Stack** | AWR (per heartbeat) + Thompson Sampling (~30 min) |
-| **Evolution** | AI Evolution Lab · 13 modules · MAP-Elites genome search |
+| **Evolution** | Leviathan v4.0 · 5-Brain Architecture · MAP-Elites genome search |
 | **Platform** | Binance USDT Perpetual Futures · Apple M4 Pro |
 
 ---
@@ -240,10 +249,10 @@ For exchange partners, institutional desks, and strategic buyers:
 |:---|:---|
 | [Architecture](./docs/architecture.md) | System design, full pipeline diagram, agent call chain |
 | [Agents](./docs/agents.md) | All 16 agents — roles, contracts, call chains |
-| [Safety](./docs/safety.md) | 7-Layer Entry Gate, invariant contracts, liquidation events |
+| [Safety](./docs/safety.md) | 8-Layer Safety Gate, invariant contracts, liquidation events |
 | [Learning](./docs/learning.md) | AWR, Thompson Sampling, calibration, BLS |
 | [Execution](./docs/execution.md) | Reconciler, AQER, AOSM, PLT, hot-reload |
-| [Evolution Lab](./docs/evolution-lab.md) | AI Evolution Lab v3, 13 modules |
+| [Evolution Lab](./docs/evolution-lab.md) | Leviathan v4.0, 5-Brain Architecture |
 | [Performance](./docs/performance.md) | Operational characteristics and KPI targets |
 | [Open Architecture](./docs/open-architecture.md) | Public/private boundary explanation |
 | [MERL Case Study](./docs/case-study-merl.md) | Liquidation event post-mortem |
