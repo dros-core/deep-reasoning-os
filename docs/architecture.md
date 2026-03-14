@@ -10,7 +10,7 @@
 flowchart TD
     MD[Market Data\nWebSocket + REST] --> A1[A1 · Volatility\nYang-Zhang σ]
     A1 --> A2[A2 · Reasoning\nEnsemble ML + LLM]
-    A2 --> A3{A3 · Safety\n7-Layer Gate}
+    A2 --> A3{A3 · Safety\n8-Layer Gate}
     A3 -->|Pass| A4[A4 · Candidate Gen\nEnsembleN* + SpacingOracle]
     A3 -->|Fail| HALT[⛔ Halt]
     A4 --> A5{A5 · Cost Validator\nfee-floor check}
@@ -32,7 +32,7 @@ flowchart TD
 |:------|:------|:------|:-------|:----------|
 | Data | A1 | OHLCV + Funding | Yang-Zhang σ, ATR | SSOT: SpacingOracle |
 | Reasoning | A2 | Market features | Ensemble ML + LLM bias | FAIL_LLM_DIRECT_CALL |
-| Safety | A3 | All signals | Pass/Fail | 7-Layer Gate |
+| Safety | A3 | All signals | Pass/Fail | 8-Layer Safety Gate |
 | Candidate | A4 | Safety pass | CardSpec draft | EnsembleN*, SSOT |
 | Validation | A5 | CardSpec | fee-floor check | FAIL_SPACING_TOO_TIGHT |
 | Correction | A7 | Failed card | Repaired card | Only re-sign authority |
